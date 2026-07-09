@@ -1,6 +1,6 @@
 """
 Plate Ratio System - Complete Edition V1-V26
-With Password Authentication & Modern UI
+With Password Authentication, Modern UI & Report Download
 """
 
 import sys
@@ -488,6 +488,216 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================================================================
+# EXCEL REPORT GENERATOR (Built-in)
+# ================================================================
+def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent):
+    """Generate Excel report"""
+    bio = BytesIO()
+    
+    with pd.ExcelWriter(bio, engine="openpyxl") as writer:
+        # Summary sheet
+        summary_df = build_full_summary(plates, demand, original_qty)
+        summary_df.to_excel(writer, sheet_name="Summary", index=False)
+        
+        # Plate details
+        plate_rows = []
+        for idx, p in enumerate(plates, 1):
+            plate_rows.append({
+                "SL": idx,
+                "Plate ID": p.get("name", f"Plate {idx}"),
+                "Sheets Required": p.get("sheets", 0),
+                "Total UPS": sum(p["layout"].values()),
+                "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
+            })
+        
+        plate_df = pd.DataFrame(plate_rows)
+        plate_df.to_excel(writer, sheet_name="Plate Details", index=False)
+        
+        # Algorithm info
+        info_df = pd.DataFrame({
+            "Property": ["Algorithm", "Waste %", "Total Plates", "Total Sheets", "Generated On"],
+            "Value": [
+                algo_name,
+                waste_percent,
+                len(plates),
+                sum(p.get("sheets", 0) for p in plates),
+                datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            ]
+        })
+        info_df.to_excel(writer, sheet_name="Info", index=False)
+    
+    bio.seek(0)
+    return bio
+
+# ================================================================
+# PDF REPORT GENERATOR (Built-in)
+# ================================================================
+def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent):
+    """Generate PDF report"""
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import A4, landscape
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_CENTER
+        from reportlab.lib.units import inch
+    except ImportError:
+        return None
+    
+    try:
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(
+            buffer, pagesize=landscape(A4),
+            rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20
+        )
+        styles = getSampleStyleSheet()
+        
+        # Custom styles
+        title_style = ParagraphStyle(
+            'CustomTitle', parent=styles['Heading1'],
+            fontSize=14, alignment=TA_CENTER,
+            textColor=colors.HexColor('#667eea'),
+            spaceAfter=4
+        )
+        subtitle_style = ParagraphStyle(
+            'CustomSubtitle', parent=styles['Normal'],
+            fontSize=9, alignment=TA_CENTER,
+            textColor=colors.grey,
+            spaceAfter=12
+        )
+        footer_style = ParagraphStyle(
+            'Footer', parent=styles['Normal'],
+            fontSize=8, alignment=TA_CENTER,
+            textColor=colors.grey,
+            spaceTop=12
+        )
+        
+        story = []
+        
+        # Header
+        story.append(Paragraph("📊 Plate Ratio System - Report", title_style))
+        story.append(Paragraph(
+            f"Algorithm: {algo_name} | Waste: {waste_percent}% | "
+            f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            subtitle_style
+        ))
+        story.append(Spacer(1, 10))
+        
+        # Summary table
+        header_row = ["SL", "Tag", "Original", "With Add-on"]
+        for p in plates:
+            header_row.append(f"Plate {p['name']}")
+        header_row.extend(["Total Prod.", "Excess", "Excess %"])
+        
+        summary_data = [header_row]
+        
+        sl = 1
+        for tag in demand.keys():
+            row = [str(sl), tag, str(original_qty.get(tag, 0)), str(demand[tag])]
+            
+            total_produced = 0
+            for p in plates:
+                ups = p["layout"].get(tag, 0)
+                row.append(str(ups))
+                total_produced += ups * p["sheets"]
+            
+            excess = total_produced - demand[tag]
+            excess_percent = f"{round((excess / demand[tag]) * 100, 2) if demand[tag] else 0}%"
+            row.extend([str(total_produced), str(excess), excess_percent])
+            summary_data.append(row)
+            sl += 1
+        
+        # Total row
+        total_row = ["📊", "TOTAL", str(sum(original_qty.values())), str(sum(demand.values()))]
+        
+        total_produced_sum = 0
+        for p in plates:
+            plate_total = 0
+            for tag in demand:
+                plate_total += p["layout"].get(tag, 0) * p["sheets"]
+            total_row.append(str(plate_total))
+            total_produced_sum += plate_total
+        
+        total_excess_sum = total_produced_sum - sum(demand.values())
+        total_excess_percent = (
+            f"{round((total_excess_sum / total_produced_sum) * 100, 2) if total_produced_sum > 0 else 0}%"
+        )
+        total_row.extend([str(total_produced_sum), str(total_excess_sum), total_excess_percent])
+        summary_data.append(total_row)
+        
+        # Create table
+        main_table = Table(summary_data, repeatRows=1)
+        main_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 7),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -2), 6),
+            ('ALIGN', (0, 1), (-1, -2), 'CENTER'),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f0f0')),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, -1), (-1, -1), 7),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        
+        for i in range(1, len(summary_data) - 1):
+            if i % 2 == 0:
+                main_table.setStyle([('BACKGROUND', (0, i), (-1, i), colors.HexColor('#f8f9fa'))])
+        
+        story.append(main_table)
+        story.append(Spacer(1, 15))
+        
+        # Plate details
+        story.append(Paragraph("🧾 Plate Configuration Details",
+                              ParagraphStyle('SubHeader', parent=styles['Heading2'],
+                                           fontSize=11, alignment=TA_CENTER,
+                                           textColor=colors.HexColor('#667eea'))))
+        story.append(Spacer(1, 8))
+        
+        plate_data = [["SL", "Plate ID", "Sheets", "Total UPS", "Layout"]]
+        for idx, p in enumerate(plates, 1):
+            layout_str = ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
+            plate_data.append([
+                str(idx),
+                p["name"],
+                str(p["sheets"]),
+                str(sum(p["layout"].values())),
+                layout_str
+            ])
+        
+        plate_table = Table(plate_data)
+        plate_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 8),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 7),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        
+        story.append(plate_table)
+        story.append(Spacer(1, 15))
+        
+        # Footer
+        story.append(Paragraph(
+            "Report Generated by Plate Ratio System | Design by Ovi | All Rights Reserved",
+            footer_style
+        ))
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer
+    
+    except Exception as e:
+        return None
+
+# ================================================================
 # MAIN APP UI
 # ================================================================
 
@@ -510,6 +720,12 @@ with st.sidebar:
     st.markdown("---")
     st.markdown(f"**Algorithms:** {len(ALGORITHM_REGISTRY)}")
     st.markdown("**V1-V26 Complete**")
+    st.markdown("---")
+    st.markdown("### 📊 About")
+    st.markdown("""
+    This system uses **26 different algorithms** to find the optimal plate ratio.
+    Each algorithm uses different optimization techniques.
+    """)
 
 # Main content
 st.markdown("### 📦 Item Entry")
@@ -684,6 +900,39 @@ if st.button("🚀 Generate Plans", type="primary", use_container_width=True):
                         "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
                     })
                 st.dataframe(pd.DataFrame(plate_rows), use_container_width=True)
+                
+                # ================================================================
+                # REPORT DOWNLOAD BUTTONS
+                # ================================================================
+                st.markdown("---")
+                st.markdown("## 📥 Download Reports")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    # Excel Report
+                    excel_buffer = generate_excel_report(best_plates, demand, original_qty, best_algo, best_waste)
+                    st.download_button(
+                        "📊 Download Excel Report",
+                        excel_buffer,
+                        f"Plate_Ratio_Report_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        use_container_width=True
+                    )
+                
+                with col2:
+                    # PDF Report
+                    pdf_buffer = generate_pdf_report(best_plates, demand, original_qty, best_algo, best_waste)
+                    if pdf_buffer:
+                        st.download_button(
+                            "📄 Download PDF Report",
+                            pdf_buffer,
+                            f"Plate_Ratio_Report_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
+                            mime="application/pdf",
+                            use_container_width=True
+                        )
+                    else:
+                        st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
 
 # Footer
 st.markdown("""
