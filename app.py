@@ -1073,7 +1073,7 @@ with col2:
 # RESULTS SECTION
 # ================================================================
 if generate_clicked:
-    if not data:
+    if not data and not final_demand:
         st.error("⚠️ Please enter at least one item with quantity > 0")
     else:
         demand = {}
