@@ -991,7 +991,7 @@ if generate_clicked:
                         "SL": idx,
                         "Plate ID": p.get("name", f"Plate {idx}"),
                         "Sheets": p.get("sheets", 0),
-                        "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
+
                     })
                 st.dataframe(pd.DataFrame(plate_rows), use_container_width=True)
                 
