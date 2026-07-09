@@ -805,7 +805,7 @@ with col4:
 with col5:
     job_number = st.text_input(
         "🔢 Job Number",
-        value=f"JOB-{datetime.now().strftime('%Y%m%d_%H%M')}",
+        value=f"JOB-{datetime.now().strftime('%d-%m-%Y_%H:%M')}",
         help="Enter a job number for tracking"
     )
 
