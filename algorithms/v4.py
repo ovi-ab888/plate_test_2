@@ -5,7 +5,7 @@ Tests multiple variations to find best
 
 from typing import Dict, List, Any
 from algorithms.base import BaseOptimizer
-from utils.helpers import create_valid_layout, plate_name, ensure_demand_met, calculate_waste_percent
+from algorithms.v1_helpers import create_valid_layout, plate_name, ensure_demand_met, calculate_waste_percent
 import math
 import copy
 
@@ -64,6 +64,5 @@ class V4Optimizer(BaseOptimizer):
         return ensure_demand_met(best_plates, self.demand) if best_plates else self._fallback()
     
     def _fallback(self):
-        """Fallback to V3"""
         from algorithms.v3 import V3Optimizer
         return V3Optimizer(self.demand, self.capacity, self.max_plates).optimize()
