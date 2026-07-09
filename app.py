@@ -14,7 +14,6 @@ import pandas as pd
 from io import BytesIO
 from datetime import datetime
 import math
-from math import ceil
 
 # Import from algorithms
 from algorithms import ALGORITHM_REGISTRY, get_algorithm
