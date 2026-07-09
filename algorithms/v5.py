@@ -5,7 +5,7 @@ Uses random mutations to find better layouts
 
 from typing import Dict, List, Any
 from algorithms.base import BaseOptimizer
-from utils.helpers import create_valid_layout, plate_name, ensure_demand_met, calculate_waste_percent
+from algorithms.v1_helpers import create_valid_layout, plate_name, ensure_demand_met, calculate_waste_percent
 import math
 import copy
 import random
