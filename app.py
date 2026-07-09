@@ -780,7 +780,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================================================================
-# MAIN CONTENT - Configuration
+# MAIN CONTENT 
 # ================================================================
 st.markdown("""
 <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1);">
@@ -788,22 +788,29 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
+
 with col1:
-    capacity = st.number_input("📀 Plate Capacity (UPS)", min_value=1, max_value=200, value=10)
+    n_items = st.number_input("📦 Number of Items", min_value=1, max_value=500, value=3)
+
 with col2:
-    max_plates = st.number_input("🎨 Max Plates", min_value=1, max_value=50, value=3)
+    capacity = st.number_input("📀 Plate Capacity (UPS)", min_value=1, max_value=200, value=10)
+
 with col3:
-    addon_percent = st.number_input("📈 Add-on (%)", min_value=0.0, max_value=50.0, value=0.0, step=0.5)
+    max_plates = st.number_input("🎨 Max Plates", min_value=1, max_value=50, value=3)
+
 with col4:
+    addon_percent = st.number_input("📈 Add-on (%)", min_value=0.0, max_value=50.0, value=0.0, step=0.5)
+
+with col5:
     job_number = st.text_input(
         "🔢 Job Number",
-        value=f"JOB-{datetime.now().strftime('%d%m%Y_%H%M')}",
+        value=f"JOB-{datetime.now().strftime('%Y%m%d_%H%M')}",
         help="Enter a job number for tracking"
     )
 
 # ================================================================
-# MAIN CONTENT - Item Entry
+# MAIN CONTENT 
 # ================================================================
 st.markdown("""
 <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1);">
@@ -813,9 +820,8 @@ st.markdown("""
 
 data = []
 
-if input_method == "✏️ Manual Input":
-    n_items = st.number_input("Number of Items", min_value=1, max_value=500, value=3)
-    
+if input_method == "✏️ Manual Entry":
+    # n_items এখন উপরের col1 থেকে নেওয়া হবে
     cols = st.columns([0.5, 2, 2, 2, 2.5])
     cols[0].markdown("**SL**")
     cols[1].markdown("**Style**")
@@ -823,7 +829,7 @@ if input_method == "✏️ Manual Input":
     cols[3].markdown("**Size**")
     cols[4].markdown("**Quantity**")
     
-    for i in range(n_items):
+    for i in range(n_items):  # n_items উপরের col1 থেকে
         cols = st.columns([0.5, 2, 2, 2, 2.5])
         cols[0].markdown(f"**{i+1}**")
         style = cols[1].text_input("", key=f"style_{i}", placeholder="Style", label_visibility="collapsed")
@@ -843,6 +849,7 @@ if input_method == "✏️ Manual Input":
 else:  # Upload Excel
     uploaded_file = st.file_uploader("Upload Excel file", type=["xlsx", "xls"])
     if uploaded_file:
+        # ... Excel reading code ...
         try:
             df = pd.read_excel(uploaded_file)
             
