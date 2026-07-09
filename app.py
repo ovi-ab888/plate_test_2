@@ -923,7 +923,6 @@ if input_method == "✏️ Manual Entry":
             })
 
 # ================== EXCEL FILE UPLOAD ==================
-# ================== EXCEL FILE UPLOAD ==================
 else:
     st.markdown('<div class="card"><div class="card-title" style="text-align: center; display: block; width: 100%;">📂 Upload Excel File</div>', unsafe_allow_html=True)
     
@@ -1052,7 +1051,8 @@ else:
             st.session_state['item_sizes'] = {f"Item {i+1}": size_list[i] for i in range(n)}
             
             original_qty = {t: int(q) for t, q in zip(tags, qty) if q > 0}
-            demand = {t: ceil(int(q) * (1 + addon / 100)) for t, q in zip(tags, qty) if q > 0}
+            # এখানে math.ceil এবং addon_percent ঠিক করে দেওয়া হয়েছে
+            demand = {t: math.ceil(int(q) * (1 + addon_percent / 100)) for t, q in zip(tags, qty) if q > 0}
             
         except Exception as e:
             st.error(f"❌ Error reading file: {str(e)}")
