@@ -1,5 +1,7 @@
+# utils/pdf_generator.py
+
 """
-PDF Report Generator
+PDF Report Generator - With Larger Font Sizes
 """
 
 from io import BytesIO
@@ -11,7 +13,8 @@ try:
     from reportlab.lib.pagesizes import A4, landscape
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.enums import TA_CENTER
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT
+    from reportlab.lib.units import inch
     REPORTLAB_AVAILABLE = True
 except ImportError:
     REPORTLAB_AVAILABLE = False
@@ -23,7 +26,7 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
                         colors_dict: Dict[str, str] = None,
                         sizes_dict: Dict[str, str] = None,
                         job_number: str = "") -> BytesIO:
-    """Generate professional PDF report"""
+    """Generate professional PDF report with larger fonts"""
     
     if not REPORTLAB_AVAILABLE:
         return None
@@ -39,40 +42,87 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
         buffer = BytesIO()
         doc = SimpleDocTemplate(
             buffer, pagesize=landscape(A4),
-            rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20
+            rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30
         )
         styles = getSampleStyleSheet()
         
-        # Custom styles
+        # ================================================================
+        # CUSTOM STYLES WITH LARGER FONTS
+        # ================================================================
+        
+        # Title - বড় ফন্ট
         title_style = ParagraphStyle(
             'CustomTitle', parent=styles['Heading1'],
-            fontSize=14, alignment=TA_CENTER,
+            fontSize=18, alignment=TA_CENTER,
             textColor=colors.HexColor('#667eea'),
-            spaceAfter=4
+            spaceAfter=6,
+            fontName='Helvetica-Bold'
         )
+        
+        # Job Number - মাঝারি ফন্ট
         job_style = ParagraphStyle(
             'JobStyle', parent=styles['Heading2'],
-            fontSize=12, alignment=TA_CENTER,
+            fontSize=14, alignment=TA_CENTER,
             textColor=colors.HexColor('#764ba2'),
-            spaceAfter=8
+            spaceAfter=8,
+            fontName='Helvetica-Bold'
         )
+        
+        # Subtitle - মাঝারি ফন্ট
         subtitle_style = ParagraphStyle(
             'CustomSubtitle', parent=styles['Normal'],
-            fontSize=9, alignment=TA_CENTER,
+            fontSize=11, alignment=TA_CENTER,
             textColor=colors.grey,
-            spaceAfter=12
+            spaceAfter=14,
+            fontName='Helvetica'
         )
+        
+        # Section Header - বড় ফন্ট
+        section_header_style = ParagraphStyle(
+            'SectionHeader', parent=styles['Heading2'],
+            fontSize=15, alignment=TA_CENTER,
+            textColor=colors.HexColor('#667eea'),
+            spaceAfter=10,
+            fontName='Helvetica-Bold'
+        )
+        
+        # Table Header - বড় ফন্ট
+        table_header_style = ParagraphStyle(
+            'TableHeader', parent=styles['Normal'],
+            fontSize=10, alignment=TA_CENTER,
+            textColor=colors.white,
+            fontName='Helvetica-Bold'
+        )
+        
+        # Table Cell - বড় ফন্ট
+        table_cell_style = ParagraphStyle(
+            'TableCell', parent=styles['Normal'],
+            fontSize=9, alignment=TA_CENTER,
+            fontName='Helvetica'
+        )
+        
+        # Table Cell Bold - বড় ফন্ট
+        table_cell_bold_style = ParagraphStyle(
+            'TableCellBold', parent=styles['Normal'],
+            fontSize=10, alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        )
+        
+        # Footer - ছোট ফন্ট
         footer_style = ParagraphStyle(
             'Footer', parent=styles['Normal'],
-            fontSize=8, alignment=TA_CENTER,
+            fontSize=9, alignment=TA_CENTER,
             textColor=colors.grey,
-            spaceTop=12
+            spaceTop=14,
+            fontName='Helvetica'
         )
         
         story = []
         
-        # Header
-        story.append(Paragraph("📊 Plate Ratio System - Ratio Report", title_style))
+        # ================================================================
+        # HEADER
+        # ================================================================
+        story.append(Paragraph("📊 Plate Ratio System - Report", title_style))
         if job_number:
             story.append(Paragraph(f"🔢 Job Number: {job_number}", job_style))
         story.append(Paragraph(
@@ -80,23 +130,33 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
             f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
             subtitle_style
         ))
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 12))
         
-        # Main summary table
-        header_row = ["SL", "Style", "Color", "Size", "Original", "With Add-on"]
+        # ================================================================
+        # MAIN SUMMARY TABLE
+        # ================================================================
+        
+        # Build header with all columns
+        header_row = ["SL", "Tag", "Original", "With Add-on"]
         for p in plates:
             header_row.append(f"Plate {p['name']}")
         header_row.extend(["Total Prod.", "Excess", "Excess %"])
         
         summary_data = [header_row]
         
+        # Build data rows
         sl = 1
         for tag in demand.keys():
             style = styles_dict.get(tag, "")
             color = colors_dict.get(tag, "")
             size = sizes_dict.get(tag, "")
             
-            row = [str(sl), style, color, size,
+            # Tag with style info
+            tag_display = tag
+            if style:
+                tag_display = f"{tag}"
+            
+            row = [str(sl), tag_display, 
                    str(original_qty.get(tag, 0)), str(demand[tag])]
             
             total_produced = 0
@@ -112,7 +172,7 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
             sl += 1
         
         # Total row
-        total_row = ["📊", "TOTAL", "", "",
+        total_row = ["📊", "TOTAL", "", 
                      str(sum(original_qty.values())), str(sum(demand.values()))]
         
         total_produced_sum = 0
@@ -133,72 +193,128 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
         # Create main table
         main_table = Table(summary_data, repeatRows=1)
         
+        # Table style with larger fonts
         table_style = [
+            # Header row - বড় ফন্ট, গাঢ়
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 7),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),  # Header font size বড়
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+            
+            # Data rows - বড় ফন্ট
             ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -2), 6),
+            ('FONTSIZE', (0, 1), (-1, -2), 9),  # Data font size বড়
             ('ALIGN', (0, 1), (-1, -2), 'CENTER'),
+            ('VALIGN', (0, 1), (-1, -2), 'MIDDLE'),
+            
+            # Total row - বড় ফন্ট, গাঢ়
             ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f0f0')),
             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 7),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('FONTSIZE', (0, -1), (-1, -1), 10),  # Total row font size বড়
+            ('ALIGN', (0, -1), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, -1), (-1, -1), 'MIDDLE'),
+            
+            # Grid
+            ('GRID', (0, 0), (-1, -1), 0.8, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
         ]
         
+        # Alternating row colors
         for i in range(1, len(summary_data) - 1):
             if i % 2 == 0:
                 table_style.append(('BACKGROUND', (0, i), (-1, i), colors.HexColor('#f8f9fa')))
         
         main_table.setStyle(TableStyle(table_style))
         story.append(main_table)
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 18))
         
-        # Plate details
-        story.append(Paragraph("🧾 Plate Configuration Details",
-                              ParagraphStyle('SubHeader', parent=styles['Heading2'],
-                                           fontSize=11, alignment=TA_CENTER,
-                                           textColor=colors.HexColor('#667eea'))))
-        story.append(Spacer(1, 8))
+        # ================================================================
+        # PLATE DETAILS TABLE
+        # ================================================================
+        story.append(Paragraph("🧾 Plate Configuration Details", section_header_style))
+        story.append(Spacer(1, 10))
         
-        plate_data = [["SL", "Plate ID", "Sheets", "Total UPS"]]
+        plate_data = [["SL", "Plate ID", "Sheets", "Total UPS", "Layout"]]
+        
         for idx, p in enumerate(plates, 1):
+            layout_str = ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
             plate_data.append([
                 str(idx),
                 p["name"],
                 str(p["sheets"]),
-                str(sum(p["layout"].values()))
+                str(sum(p["layout"].values())),
+                layout_str
             ])
+        
+        # Add total row for plate details
+        total_sheets = sum(p["sheets"] for p in plates)
+        total_ups = sum(sum(p["layout"].values()) for p in plates)
+        plate_data.append([
+            "📊",
+            "TOTAL",
+            str(total_sheets),
+            str(total_ups),
+            "-"
+        ])
         
         plate_table = Table(plate_data)
         plate_table.setStyle(TableStyle([
+            # Header
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 8),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 7),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+            
+            # Data rows
+            ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -2), 9),
+            ('ALIGN', (0, 1), (-1, -2), 'CENTER'),
+            ('VALIGN', (0, 1), (-1, -2), 'MIDDLE'),
+            
+            # Total row
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f0f0')),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, -1), (-1, -1), 10),
+            ('ALIGN', (0, -1), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, -1), (-1, -1), 'MIDDLE'),
+            
+            # Grid
+            ('GRID', (0, 0), (-1, -1), 0.8, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
         ]))
         
         story.append(plate_table)
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 18))
         
-        # Footer
+        # ================================================================
+        # FOOTER
+        # ================================================================
         story.append(Paragraph(
-            f"This Report Generated by Ovi's Plate Ratio System | Job: {job_number if job_number else 'N/A'} | All Rights Reserved",
+            f"Report Generated by Plate Ratio System | Job: {job_number if job_number else 'N/A'} | Design by Ovi | All Rights Reserved",
             footer_style
         ))
         
+        # Build the PDF
         doc.build(story)
         buffer.seek(0)
         return buffer
-    
+
     except Exception as e:
         print(f"PDF Generation Error: {str(e)}")
         return None
