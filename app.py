@@ -976,8 +976,7 @@ if generate_clicked:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                with st.expander("📊 All Algorithms Comparison", expanded=False):
-                    st.dataframe(comparison_df, use_container_width=True)
+
                 
                 # ================================================================
                 # BEST ALGORITHM REPORT
@@ -1028,7 +1027,7 @@ if generate_clicked:
                         "SL": idx,
                         "Plate ID": plate_name_str,
                         "Sheets": p.get("sheets", 0),
-                        "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
+
                     })
                     total_sheets_sum += p.get("sheets", 0)
                     total_ups_sum += total_ups
@@ -1037,8 +1036,8 @@ if generate_clicked:
                 plate_rows.append({
                     "SL": "📊",
                     "Plate ID": "**TOTAL**",
-                    "Sheets": total_sheets_sum,
-                    "Layout": f"Total UPS: {total_ups_sum}"
+                    "Sheets": total_sheets_sum
+
                 })
 
                 plate_details_df = pd.DataFrame(plate_rows)
