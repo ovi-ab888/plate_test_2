@@ -25,7 +25,6 @@ from .v25 import V25Optimizer
 from .v26 import V26Optimizer
 from .smart_clustering import SmartClusteringOptimizer
 
-
 # Registry of all algorithms
 ALGORITHM_REGISTRY = {
     "V1 - Plate Ratio System": V1Optimizer,
