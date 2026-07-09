@@ -4,8 +4,8 @@ Proportional distribution with decimal balancing
 """
 
 from typing import Dict, List, Any
-from .base import BaseOptimizer
-from ..utils.helpers import create_valid_layout, plate_name, ensure_demand_met
+from algorithms.base import BaseOptimizer
+from utils.helpers import create_valid_layout, plate_name, ensure_demand_met
 import math
 
 
