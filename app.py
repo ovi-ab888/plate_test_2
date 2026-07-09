@@ -518,7 +518,7 @@ with st.sidebar:
     
     input_method = st.radio(
         "Select Input Method:",
-        ["✏️ Manual Entry", "📂 Upload Excel"],
+        ["✏️ Manual Input", "📂 Upload Excel"],
         index=0,
         label_visibility="collapsed"
     )
@@ -798,7 +798,7 @@ with col3:
 with col4:
     job_number = st.text_input(
         "🔢 Job Number",
-        value=f"JOB-{datetime.now().strftime('%Y%m%d_%H%M')}",
+        value=f"JOB-{datetime.now().strftime('%d%m%Y_%H%M')}",
         help="Enter a job number for tracking"
     )
 
@@ -813,7 +813,7 @@ st.markdown("""
 
 data = []
 
-if input_method == "✏️ Manual Entry":
+if input_method == "✏️ Manual Input":
     n_items = st.number_input("Number of Items", min_value=1, max_value=500, value=3)
     
     cols = st.columns([0.5, 2, 2, 2, 2.5])
@@ -899,7 +899,7 @@ if data:
 # ================================================================
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    generate_clicked = st.button("🚀 Generate Plans", type="primary", use_container_width=True)
+    generate_clicked = st.button("Generate Plans", type="primary", use_container_width=True)
 
 # ================================================================
 # RESULTS SECTION
