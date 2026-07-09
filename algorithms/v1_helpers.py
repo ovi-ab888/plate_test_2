@@ -21,14 +21,21 @@ def plate_name(n: int) -> str:
     return out
 
 
+# algorithms/v1_helpers.py - create_valid_layout ফাংশন ঠিক করা
+
 def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "balanced") -> Dict[str, int]:
-    """Create a layout that respects capacity"""
+    """
+    Create a layout that respects capacity - প্রতিটি প্লেটের UPS যেন capacity এর সমান হয়
+    """
     if not active:
         return {}
     
     total_qty = sum(active.values())
     n_items = len(active)
     
+    # ============================================================
+    # CASE 1: বেশি আইটেম, কম capacity
+    # ============================================================
     if n_items > capacity:
         layout = {}
         
@@ -37,17 +44,20 @@ def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "ba
                 ups = max(1, int((qty / total_qty) * capacity))
                 layout[tag] = ups
             
+            # Exact capacity enforce - বেশি হলে কমাও
             while sum(layout.values()) > capacity:
                 max_tag = max(layout, key=layout.get)
                 if layout[max_tag] > 1:
                     layout[max_tag] -= 1
                 else:
+                    # সব UPS 1 হলে, সবচেয়ে কম গুরুত্বপূর্ণ ট্যাগ 0 করো
                     min_tag = min(active, key=lambda t: active[t])
                     if layout.get(min_tag, 0) > 0:
                         layout[min_tag] = 0
                     else:
                         break
             
+            # Exact capacity enforce - কম হলে বাড়াও
             while sum(layout.values()) < capacity:
                 max_tag = max(active, key=lambda t: active[t] / (layout.get(t, 1) + 1))
                 layout[max_tag] = layout.get(max_tag, 0) + 1
@@ -59,6 +69,7 @@ def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "ba
                 layout[tag] = 1
             
             remaining_cap = capacity - sum(layout.values())
+            
             if remaining_cap > 0:
                 sorted_items = sorted(active.items(), key=lambda x: x[1], reverse=True)
                 for tag, _ in sorted_items:
@@ -89,6 +100,9 @@ def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "ba
             
             return layout
     
+    # ============================================================
+    # CASE 2: স্বাভাবিক - আইটেম সংখ্যা capacity এর কম বা সমান
+    # ============================================================
     layout = {}
     
     if method == "balanced":
@@ -99,6 +113,7 @@ def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "ba
                 base = 1
             layout[tag] = base
         
+        # Exact capacity enforce - বেশি হলে কমাও
         while sum(layout.values()) > capacity:
             max_tag = max(layout, key=layout.get)
             if layout[max_tag] > 1:
@@ -106,6 +121,7 @@ def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "ba
             else:
                 break
         
+        # Exact capacity enforce - কম হলে বাড়াও (fractional part based)
         while sum(layout.values()) < capacity:
             fractional = {}
             for tag, qty in active.items():
@@ -114,11 +130,12 @@ def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "ba
             best = max(fractional, key=fractional.get)
             layout[best] = layout.get(best, 0) + 1
     
-    else:
+    else:  # proportional or greedy
         for tag, qty in active.items():
             ups = max(1, int((qty / total_qty) * capacity))
             layout[tag] = ups
         
+        # Exact capacity enforce - বেশি হলে কমাও
         while sum(layout.values()) > capacity:
             max_tag = max(layout, key=layout.get)
             if layout[max_tag] > 1:
@@ -126,9 +143,26 @@ def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "ba
             else:
                 break
         
+        # Exact capacity enforce - কম হলে বাড়াও
         while sum(layout.values()) < capacity:
             max_tag = max(active, key=lambda t: active[t] / (layout.get(t, 1) + 1))
             layout[max_tag] = layout.get(max_tag, 0) + 1
+    
+    # ============================================================
+    # FINAL CHECK - সবশেষে capacity verify
+    # ============================================================
+    # যদি এখনও capacity এর বেশি হয়
+    while sum(layout.values()) > capacity:
+        max_tag = max(layout, key=layout.get)
+        if layout[max_tag] > 1:
+            layout[max_tag] -= 1
+        else:
+            break
+    
+    # যদি capacity এর কম হয়
+    while sum(layout.values()) < capacity:
+        max_tag = max(active, key=lambda t: active[t] / (layout.get(t, 1) + 1))
+        layout[max_tag] = layout.get(max_tag, 0) + 1
     
     return layout
 
