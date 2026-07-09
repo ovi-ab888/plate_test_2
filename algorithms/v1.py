@@ -1,15 +1,14 @@
 """
-V1 - Plate Ratio System (Basic Version)
+Helper Functions - Common utilities
 """
 
-from typing import Dict, List, Any
-from algorithms.base import BaseOptimizer
+import string
 import math
+from typing import Dict, List, Any
 
 
 def plate_name(n: int) -> str:
     """Convert number to Excel-style column name"""
-    import string
     n -= 1
     chars = string.ascii_uppercase
     out = ""
@@ -158,40 +157,99 @@ def ensure_demand_met(plates: List[Dict[str, Any]], demand: Dict[str, int]) -> L
     return plates
 
 
-class V1Optimizer(BaseOptimizer):
-    """V1 - Basic Plate Ratio System"""
+def calculate_waste_percent(plates: List[Dict[str, Any]], demand: Dict[str, int]) -> float:
+    """Calculate waste percentage"""
+    total_produced = 0
+    total_demand = sum(demand.values())
     
-    def __init__(self, demand: Dict[str, int], capacity: int, max_plates: int):
-        super().__init__(demand, capacity, max_plates)
-        self.name = "V1 - Plate Ratio System"
-        self.version = "V1"
+    if total_demand == 0:
+        return 0.0
     
-    def optimize(self) -> List[Dict[str, Any]]:
-        """Execute V1 optimization"""
-        remaining = self.demand.copy()
-        plates = []
+    for tag in demand:
+        produced_qty = 0
+        for p in plates:
+            if p and "layout" in p:
+                ups = p["layout"].get(tag, 0)
+                produced_qty += ups * p.get("sheets", 0)
+        total_produced += produced_qty
+    
+    if total_produced == 0:
+        return 100.0
+    
+    waste = total_produced - total_demand
+    waste_percent = (waste / total_produced) * 100
+    
+    if waste_percent < 0:
+        waste_percent = 0.0
+    
+    return round(waste_percent, 2)
+
+
+def build_full_summary(plates: List[Dict[str, Any]], demand: Dict[str, int], 
+                       original_qty: Dict[str, int]) -> 'pd.DataFrame':
+    """Build complete summary DataFrame"""
+    import pandas as pd
+    
+    rows = []
+    sl = 1
+    
+    for tag in demand.keys():
+        row = {
+            "SL": sl,
+            "Tag": tag,
+            "Original QTY": original_qty.get(tag, 0),
+            "Produced (+Add-on)": demand[tag]
+        }
         
-        for i in range(self.max_plates):
-            active = {k: v for k, v in remaining.items() if v > 0}
-            if not active:
-                break
-            
-            layout = create_valid_layout(active, self.capacity, "balanced")
-            
-            possible_sheets = []
-            for tag, ups in layout.items():
-                if ups > 0 and remaining.get(tag, 0) > 0:
-                    possible_sheets.append(math.ceil(remaining[tag] / ups))
-            
-            sheets = max(1, min(possible_sheets)) if possible_sheets else 1
-            
-            for tag, ups in layout.items():
-                remaining[tag] = max(0, remaining[tag] - (ups * sheets))
-            
-            plates.append({
-                "name": plate_name(i + 1),
-                "layout": layout,
-                "sheets": sheets
-            })
+        for idx, p in enumerate(plates):
+            if p and "layout" in p and "name" in p:
+                ups = p["layout"].get(tag, 0)
+                row[f"Plate {p['name']}"] = ups
+            else:
+                row[f"Plate {idx+1}"] = 0
         
-        return ensure_demand_met(plates, self.demand)
+        total_produced = 0
+        for p in plates:
+            if p and "layout" in p:
+                ups = p["layout"].get(tag, 0)
+                sheets = p.get("sheets", 0)
+                total_produced += ups * sheets
+        
+        excess = total_produced - demand[tag]
+        excess_percent = round((excess / demand[tag]) * 100, 2) if demand[tag] else 0
+        
+        row["Total Produced QTY"] = total_produced
+        row["Excess"] = max(0, excess)
+        row["Excess %"] = f"{max(0, excess_percent)}%"
+        rows.append(row)
+        sl += 1
+    
+    if not rows:
+        return pd.DataFrame()
+    
+    df = pd.DataFrame(rows)
+    
+    total_row = {
+        "SL": "📊",
+        "Tag": "TOTAL",
+        "Original QTY": df["Original QTY"].sum(),
+        "Produced (+Add-on)": df["Produced (+Add-on)"].sum(),
+    }
+    
+    for idx, p in enumerate(plates):
+        col_name = f"Plate {p['name']}" if "name" in p else f"Plate {idx+1}"
+        if col_name in df.columns:
+            total_row[col_name] = df[col_name].sum()
+        else:
+            total_row[col_name] = 0
+    
+    total_row["Total Produced QTY"] = df["Total Produced QTY"].sum()
+    total_excess = df["Excess"].sum()
+    total_row["Excess"] = total_excess
+    
+    total_produced_qty = total_row["Total Produced QTY"]
+    total_excess_percent = round((total_excess / total_produced_qty) * 100, 2) if total_produced_qty > 0 else 0
+    total_row["Excess %"] = f"{total_excess_percent}%"
+    
+    df = pd.concat([df, pd.DataFrame([total_row])], ignore_index=True)
+    return df
