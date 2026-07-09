@@ -1003,6 +1003,8 @@ else:
                         sl_val = int(sl) if not pd.isna(sl) and str(sl).strip() != '' else idx + 1
                         
                         cleaned_data.append((sl_val, style_val, color_val, size_val, qty_int))
+                        final_original_qty[style_val] = qty_int
+                        final_demand[style_val] = math.ceil(qty_int * (1 + addon_percent / 100))
                     else:
                         skipped_rows += 1
                 except (ValueError, TypeError):
