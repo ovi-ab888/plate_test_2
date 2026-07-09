@@ -550,6 +550,46 @@ with st.sidebar:
         """)
 
 # ================================================================
+# PLATE VALIDATION FUNCTION
+# ================================================================
+def validate_plate_capacity(plates, capacity):
+    """
+    Validate that each plate's total UPS equals the plate capacity
+    If not, fix the layout to match capacity
+    """
+    if not plates:
+        return plates
+    
+    for plate in plates:
+        layout = plate["layout"]
+        total_ups = sum(layout.values())
+        
+        # If total UPS doesn't match capacity, fix it
+        if total_ups != capacity:
+            # If more than capacity, remove from tags with highest UPS
+            while sum(layout.values()) > capacity:
+                max_tag = max(layout, key=layout.get)
+                if layout[max_tag] > 1:
+                    layout[max_tag] -= 1
+                else:
+                    # If all are 1, remove from the tag with lowest demand
+                    min_tag = min(layout.keys(), key=lambda t: layout.get(t, 0))
+                    if layout.get(min_tag, 0) > 0:
+                        layout[min_tag] = 0
+                    else:
+                        break
+            
+            # If less than capacity, add to tags with highest demand
+            while sum(layout.values()) < capacity:
+                # Find tag with highest demand relative to current UPS
+                best_tag = max(layout.keys(), key=lambda t: demand.get(t, 0) / (layout.get(t, 1) + 1))
+                layout[best_tag] = layout.get(best_tag, 0) + 1
+            
+            plate["layout"] = layout
+    
+    return plates
+
+# ================================================================
 # EXCEL REPORT GENERATOR
 # ================================================================
 def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent, job_number=""):
@@ -561,16 +601,31 @@ def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent
         summary_df = build_full_summary(plates, demand, original_qty)
         summary_df.to_excel(writer, sheet_name="Summary", index=False)
         
-        # Plate details
+        # Plate details with total
         plate_rows = []
+        total_sheets_sum = 0
+        total_ups_sum = 0
+        
         for idx, p in enumerate(plates, 1):
+            total_ups = sum(p["layout"].values())
             plate_rows.append({
                 "SL": idx,
                 "Plate ID": p.get("name", f"Plate {idx}"),
                 "Sheets Required": p.get("sheets", 0),
-                "Total UPS": sum(p["layout"].values()),
+                "Total UPS": total_ups,
                 "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
             })
+            total_sheets_sum += p.get("sheets", 0)
+            total_ups_sum += total_ups
+        
+        # Add total row
+        plate_rows.append({
+            "SL": "TOTAL",
+            "Plate ID": "",
+            "Sheets Required": total_sheets_sum,
+            "Total UPS": total_ups_sum,
+            "Layout": ""
+        })
         
         plate_df = pd.DataFrame(plate_rows)
         plate_df.to_excel(writer, sheet_name="Plate Details", index=False)
@@ -582,7 +637,7 @@ def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent
                 algo_name,
                 waste_percent,
                 len(plates),
-                sum(p.get("sheets", 0) for p in plates),
+                total_sheets_sum,
                 job_number if job_number else "N/A",
                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             ]
@@ -610,34 +665,45 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         buffer = BytesIO()
         doc = SimpleDocTemplate(
             buffer, pagesize=landscape(A4),
-            rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20
+            rightMargin=25, leftMargin=25, topMargin=25, bottomMargin=25
         )
         styles = getSampleStyleSheet()
         
         # Custom styles
         title_style = ParagraphStyle(
             'CustomTitle', parent=styles['Heading1'],
-            fontSize=14, alignment=TA_CENTER,
+            fontSize=20, alignment=TA_CENTER,
             textColor=colors.HexColor('#667eea'),
-            spaceAfter=4
+            spaceAfter=6,
+            fontName='Helvetica-Bold'
         )
         job_style = ParagraphStyle(
             'JobStyle', parent=styles['Heading2'],
-            fontSize=11, alignment=TA_CENTER,
+            fontSize=16, alignment=TA_CENTER,
             textColor=colors.HexColor('#764ba2'),
-            spaceAfter=6
+            spaceAfter=8,
+            fontName='Helvetica-Bold'
         )
         subtitle_style = ParagraphStyle(
             'CustomSubtitle', parent=styles['Normal'],
-            fontSize=9, alignment=TA_CENTER,
+            fontSize=12, alignment=TA_CENTER,
             textColor=colors.grey,
-            spaceAfter=12
+            spaceAfter=14,
+            fontName='Helvetica'
+        )
+        section_header_style = ParagraphStyle(
+            'SectionHeader', parent=styles['Heading2'],
+            fontSize=16, alignment=TA_CENTER,
+            textColor=colors.HexColor('#667eea'),
+            spaceAfter=10,
+            fontName='Helvetica-Bold'
         )
         footer_style = ParagraphStyle(
             'Footer', parent=styles['Normal'],
-            fontSize=8, alignment=TA_CENTER,
+            fontSize=10, alignment=TA_CENTER,
             textColor=colors.grey,
-            spaceTop=12
+            spaceTop=14,
+            fontName='Helvetica'
         )
         
         story = []
@@ -651,7 +717,7 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
             f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
             subtitle_style
         ))
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 12))
         
         # Summary table
         header_row = ["SL", "Tag", "Original", "With Add-on"]
@@ -701,16 +767,20 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 7),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
             ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -2), 6),
+            ('FONTSIZE', (0, 1), (-1, -2), 11),
             ('ALIGN', (0, 1), (-1, -2), 'CENTER'),
-            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f0f0')),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#e8f0fe')),
             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 7),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('FONTSIZE', (0, -1), (-1, -1), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
         ]))
         
         for i in range(1, len(summary_data) - 1):
@@ -718,41 +788,47 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
                 main_table.setStyle([('BACKGROUND', (0, i), (-1, i), colors.HexColor('#f8f9fa'))])
         
         story.append(main_table)
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 18))
         
         # Plate details
-        story.append(Paragraph("🧾 Plate Configuration Details",
-                              ParagraphStyle('SubHeader', parent=styles['Heading2'],
-                                           fontSize=11, alignment=TA_CENTER,
-                                           textColor=colors.HexColor('#667eea'))))
-        story.append(Spacer(1, 8))
+        story.append(Paragraph("🧾 Plate Configuration Details", section_header_style))
+        story.append(Spacer(1, 10))
         
-        plate_data = [["SL", "Plate ID", "Sheets", "Total UPS", "Layout"]]
+        plate_data = [["SL", "Plate ID", "Sheets", "Total UPS"]]
         for idx, p in enumerate(plates, 1):
-            layout_str = ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
             plate_data.append([
                 str(idx),
                 p["name"],
                 str(p["sheets"]),
-                str(sum(p["layout"].values())),
-                layout_str
+                str(sum(p["layout"].values()))
             ])
+        
+        total_sheets = sum(p["sheets"] for p in plates)
+        total_ups = sum(sum(p["layout"].values()) for p in plates)
+        plate_data.append(["📊", "TOTAL", str(total_sheets), str(total_ups)])
         
         plate_table = Table(plate_data)
         plate_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 8),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 7),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -2), 11),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#e8f0fe')),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, -1), (-1, -1), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
         ]))
         
         story.append(plate_table)
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 18))
         
         # Footer
         story.append(Paragraph(
@@ -967,6 +1043,30 @@ if generate_clicked:
                 best_waste = comparison_df.iloc[0]["Waste %"]
                 best_plates = results[best_algo]
                 
+                # ================================================================
+                # VALIDATE PLATE CAPACITY
+                # ================================================================
+                # Fix any plates that don't match the capacity
+                for plate in best_plates:
+                    layout = plate["layout"]
+                    total_ups = sum(layout.values())
+                    
+                    if total_ups != capacity:
+                        # Fix the layout
+                        while sum(layout.values()) > capacity:
+                            max_tag = max(layout, key=layout.get)
+                            if layout[max_tag] > 1:
+                                layout[max_tag] -= 1
+                            else:
+                                break
+                        
+                        while sum(layout.values()) < capacity:
+                            # Add to tag with highest demand
+                            best_tag = max(demand.keys(), key=lambda t: demand.get(t, 0) / (layout.get(t, 1) + 1))
+                            layout[best_tag] = layout.get(best_tag, 0) + 1
+                        
+                        plate["layout"] = layout
+                
                 st.markdown(f"""
                 <div class="best-algo">
                     <h2>🏆 BEST ALGORITHM: {best_algo}</h2>
@@ -976,7 +1076,8 @@ if generate_clicked:
                 </div>
                 """, unsafe_allow_html=True)
                 
-
+                with st.expander("📊 All Algorithms Comparison", expanded=False):
+                    st.dataframe(comparison_df, use_container_width=True)
                 
                 # ================================================================
                 # BEST ALGORITHM REPORT
@@ -1027,7 +1128,8 @@ if generate_clicked:
                         "SL": idx,
                         "Plate ID": plate_name_str,
                         "Sheets": p.get("sheets", 0),
-
+                        "Total UPS": total_ups,
+                        "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
                     })
                     total_sheets_sum += p.get("sheets", 0)
                     total_ups_sum += total_ups
@@ -1036,8 +1138,9 @@ if generate_clicked:
                 plate_rows.append({
                     "SL": "📊",
                     "Plate ID": "**TOTAL**",
-                    "Sheets": total_sheets_sum
-
+                    "Sheets": total_sheets_sum,
+                    "Total UPS": total_ups_sum,
+                    "Layout": ""
                 })
 
                 plate_details_df = pd.DataFrame(plate_rows)
@@ -1073,6 +1176,7 @@ if generate_clicked:
                         )
                     else:
                         st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
+
 # ================================================================
 # FOOTER
 # ================================================================
