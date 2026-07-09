@@ -1076,6 +1076,9 @@ else:
         st.stop()
 
 st.markdown('</div>', unsafe_allow_html=True)
+
+
+
 # ================================================================
 # GENERATE BUTTON
 # ================================================================
@@ -1087,18 +1090,25 @@ with col2:
 # RESULTS SECTION
 # ================================================================
 if generate_clicked:
-    if not data and not final_demand:
+    # Check if data exists (either from manual entry or Excel upload)
+    if not data and not demand:
         st.error("⚠️ Please enter at least one item with quantity > 0")
     else:
-        demand = {}
-        original_qty = {}
+        # If data is empty but demand has values (from Excel upload)
+        if not data and demand:
+            pass  # demand already has values from Excel
         
-        for item in data:
-            tag = item["Style"]
-            qty = item["Quantity"]
-            if qty > 0:
-                demand[tag] = int(qty * (1 + addon_percent / 100))
-                original_qty[tag] = int(qty)
+        # If data has values (from manual entry), process it
+        elif data:
+            demand = {}
+            original_qty = {}
+            
+            for item in data:
+                tag = item["Style"]
+                qty = item["Quantity"]
+                if qty > 0:
+                    demand[tag] = int(qty * (1 + addon_percent / 100))
+                    original_qty[tag] = int(qty)
         
         if not demand:
             st.error("⚠️ No valid data found!")
@@ -1147,13 +1157,11 @@ if generate_clicked:
                 # ================================================================
                 # VALIDATE PLATE CAPACITY
                 # ================================================================
-                # Fix any plates that don't match the capacity
                 for plate in best_plates:
                     layout = plate["layout"]
                     total_ups = sum(layout.values())
                     
                     if total_ups != capacity:
-                        # Fix the layout
                         while sum(layout.values()) > capacity:
                             max_tag = max(layout, key=layout.get)
                             if layout[max_tag] > 1:
@@ -1162,7 +1170,6 @@ if generate_clicked:
                                 break
                         
                         while sum(layout.values()) < capacity:
-                            # Add to tag with highest demand
                             best_tag = max(demand.keys(), key=lambda t: demand.get(t, 0) / (layout.get(t, 1) + 1))
                             layout[best_tag] = layout.get(best_tag, 0) + 1
                         
@@ -1186,10 +1193,8 @@ if generate_clicked:
                 st.markdown("---")
                 st.markdown("## 📋 Best Algorithm Report")
 
-                # Summary with Total
                 summary_df = build_full_summary(best_plates, demand, original_qty)
 
-                # Ensure Total row exists
                 if not summary_df.empty:
                     if summary_df.iloc[-1]["Tag"] != "TOTAL":
                         total_row = {
@@ -1215,7 +1220,6 @@ if generate_clicked:
 
                 st.dataframe(summary_df, use_container_width=True, height=350)
 
-                # Plate Details with Total Row
                 st.markdown("### 🧾 Plate Details")
 
                 plate_rows = []
@@ -1235,7 +1239,6 @@ if generate_clicked:
                     total_sheets_sum += p.get("sheets", 0)
                     total_ups_sum += total_ups
 
-                # Add Total Row
                 plate_rows.append({
                     "SL": "📊",
                     "Plate ID": "**TOTAL**",
