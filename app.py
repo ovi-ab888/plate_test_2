@@ -3,8 +3,8 @@ Plate Ratio System - Complete Edition
 Main Streamlit Application
 """
 
-import os
 import sys
+import os
 import streamlit as st
 import pandas as pd
 from io import BytesIO
@@ -12,7 +12,7 @@ from datetime import datetime
 import math
 
 # Add project root to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Import algorithms
 from algorithms import ALGORITHM_REGISTRY, get_algorithm
