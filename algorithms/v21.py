@@ -26,62 +26,86 @@ class V21Optimizer(BaseOptimizer):
         self.alpha = alpha
         self.beta = beta
         self.evaporation = evaporation
+        self.tags = list(demand.keys())
+        self.pheromone = {}
+        
+        # Initialize pheromone
+        for i in range(len(self.tags)):
+            for j in range(1, self.capacity + 1):
+                self.pheromone[(i, j)] = 1.0
     
     def optimize(self) -> List[Dict[str, Any]]:
         """Execute V21 optimization with Ant Colony"""
-        tags = list(self.demand.keys())
-        n_tags = len(tags)
-        
-        if n_tags == 0:
+        if not self.tags:
             return []
-        
-        # Initialize pheromone matrix
-        pheromone = {}
-        for i in range(n_tags):
-            for j in range(1, self.capacity + 1):
-                pheromone[(i, j)] = 1.0
         
         best_plates = None
         best_waste = float('inf')
         
-        def construct_solution():
-            remaining = self.demand.copy()
-            plates = []
+        for iteration in range(self.iterations):
+            iteration_best_plates = None
+            iteration_best_waste = float('inf')
             
-            for plate_idx in range(self.max_plates):
-                active = {k: v for k, v in remaining.items() if v > 0}
-                if not active:
-                    break
-                
-                # Start with proportional layout
-                layout = create_valid_layout(active, self.capacity, "proportional")
-                
-                # Use ACO to refine layout
-                remaining_cap = self.capacity - sum(layout.values())
-                
-                if remaining_cap > 0 and active:
-                    active_tags = list(active.keys())
-                    while remaining_cap > 0 and active_tags:
-                        for tag in active_tags:
-                            if remaining_cap <= 0:
-                                break
-                            tag_idx = tags.index(tag)
+            for ant in range(self.ants):
+                plates = self._construct_solution()
+                if plates:
+                    waste = calculate_waste_percent(plates, self.demand)
+                    
+                    if waste < iteration_best_waste:
+                        iteration_best_waste = waste
+                        iteration_best_plates = copy.deepcopy(plates)
+                    
+                    if waste < best_waste:
+                        best_waste = waste
+                        best_plates = copy.deepcopy(plates)
+            
+            if iteration_best_plates:
+                self._update_pheromone(iteration_best_plates, iteration_best_waste)
+            
+            if best_waste == 0:
+                break
+        
+        return ensure_demand_met(best_plates, self.demand) if best_plates else self._fallback()
+    
+    def _construct_solution(self):
+        """Construct a solution using ACO"""
+        remaining = self.demand.copy()
+        plates = []
+        
+        for plate_idx in range(self.max_plates):
+            active = {k: v for k, v in remaining.items() if v > 0}
+            if not active:
+                break
+            
+            # Start with proportional layout
+            layout = create_valid_layout(active, self.capacity, "proportional")
+            
+            # Use ACO to refine layout
+            remaining_cap = self.capacity - sum(layout.values())
+            
+            if remaining_cap > 0 and active:
+                active_tags = list(active.keys())
+                while remaining_cap > 0 and active_tags:
+                    for tag in active_tags:
+                        if remaining_cap <= 0:
+                            break
+                        tag_idx = self.tags.index(tag)
+                        
+                        # Use pheromone to decide extra UPS
+                        ups_options = list(range(1, min(remaining_cap, active[tag]) + 1))
+                        if ups_options:
+                            probabilities = []
+                            for ups in ups_options:
+                                tau = self.pheromone.get((tag_idx, ups), 1.0) ** self.alpha
+                                eta = (1.0 / (ups + 1)) ** self.beta
+                                probabilities.append(tau * eta)
                             
-                            # Use pheromone to decide extra UPS
-                            ups_options = list(range(1, min(remaining_cap, active[tag]) + 1))
-                            if ups_options:
-                                probabilities = []
-                                for ups in ups_options:
-                                    tau = pheromone.get((tag_idx, ups), 1.0) ** self.alpha
-                                    eta = (1.0 / (ups + 1)) ** self.beta
-                                    probabilities.append(tau * eta)
-                                
-                                if probabilities and sum(probabilities) > 0:
-                                    total_prob = sum(probabilities)
-                                    probs = [p / total_prob for p in probabilities]
-                                    chosen_ups = random.choices(ups_options, weights=probs)[0]
-                                    layout[tag] = layout.get(tag, 0) + chosen_ups
-                                    remaining_cap -= chosen_ups
+                            if probabilities and sum(probabilities) > 0:
+                                total_prob = sum(probabilities)
+                                probs = [p / total_prob for p in probabilities]
+                                chosen_ups = random.choices(ups_options, weights=probs)[0]
+                                layout[tag] = layout.get(tag, 0) + chosen_ups
+                                remaining_cap -= chosen_ups
             
             # Ensure exact capacity
             while sum(layout.values()) > self.capacity:
@@ -116,47 +140,23 @@ class V21Optimizer(BaseOptimizer):
             if all(v <= 0 for v in remaining.values()):
                 break
         
-        return ensure_demand_met(plates, self.demand)
+        return ensure_demand_met(plates, self.demand) if plates else None
     
-    def update_pheromone(self, plates, waste):
+    def _update_pheromone(self, plates, waste):
         """Update pheromone based on solution quality"""
         # Evaporation
-        for key in list(pheromone.keys()):
-            pheromone[key] *= (1 - self.evaporation)
+        for key in list(self.pheromone.keys()):
+            self.pheromone[key] *= (1 - self.evaporation)
         
         # Deposit pheromone
         deposit = 10.0 / (waste + 1) if waste > 0 else 100.0
         
         for plate in plates:
             for tag, ups in plate["layout"].items():
-                tag_idx = tags.index(tag)
-                pheromone[(tag_idx, ups)] = pheromone.get((tag_idx, ups), 1.0) + deposit
+                if tag in self.tags:
+                    tag_idx = self.tags.index(tag)
+                    self.pheromone[(tag_idx, ups)] = self.pheromone.get((tag_idx, ups), 1.0) + deposit
     
-    # ACO main loop
-    for iteration in range(self.iterations):
-        iteration_best_plates = None
-        iteration_best_waste = float('inf')
-        
-        for ant in range(self.ants):
-            plates = construct_solution()
-            waste = calculate_waste_percent(plates, self.demand)
-            
-            if waste < iteration_best_waste:
-                iteration_best_waste = waste
-                iteration_best_plates = copy.deepcopy(plates)
-            
-            if waste < best_waste:
-                best_waste = waste
-                best_plates = copy.deepcopy(plates)
-        
-        if iteration_best_plates:
-            update_pheromone(iteration_best_plates, iteration_best_waste)
-        
-        if best_waste == 0:
-            break
-    
-    return ensure_demand_met(best_plates, self.demand) if best_plates else self._fallback()
-
-def _fallback(self):
-    from algorithms.v3 import V3Optimizer
-    return V3Optimizer(self.demand, self.capacity, self.max_plates).optimize()
+    def _fallback(self):
+        from algorithms.v3 import V3Optimizer
+        return V3Optimizer(self.demand, self.capacity, self.max_plates).optimize()
