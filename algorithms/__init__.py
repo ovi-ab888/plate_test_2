@@ -2,6 +2,7 @@
 Algorithms Package - All Plate Ratio Optimizers
 """
 
+# Import all algorithm classes
 from algorithms.v1 import V1Optimizer
 from algorithms.v2 import V2Optimizer
 from algorithms.v3 import V3Optimizer
