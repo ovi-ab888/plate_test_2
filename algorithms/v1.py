@@ -6,6 +6,7 @@ Simple proportional distribution algorithm
 from typing import Dict, List, Any
 from .base import BaseOptimizer
 from ..utils.helpers import create_valid_layout, plate_name, ensure_demand_met
+import math
 
 
 class V1Optimizer(BaseOptimizer):
@@ -53,7 +54,6 @@ class V1Optimizer(BaseOptimizer):
         possible_sheets = []
         for tag, ups in layout.items():
             if ups > 0 and remaining.get(tag, 0) > 0:
-                from math import ceil
-                possible_sheets.append(ceil(remaining[tag] / ups))
+                possible_sheets.append(math.ceil(remaining[tag] / ups))
         
         return max(1, min(possible_sheets)) if possible_sheets else 1
