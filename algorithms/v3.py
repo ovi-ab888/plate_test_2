@@ -1,10 +1,11 @@
 """
 V3 - Smart Decimal Balancing
+Proportional distribution with decimal balancing
 """
 
 from typing import Dict, List, Any
 from algorithms.base import BaseOptimizer
-from algorithms.v1 import create_valid_layout, plate_name, ensure_demand_met
+from algorithms.v1_helpers import create_valid_layout, plate_name, ensure_demand_met
 import math
 
 
@@ -26,8 +27,10 @@ class V3Optimizer(BaseOptimizer):
             if not active:
                 break
             
+            # Create layout using proportional method
             layout = create_valid_layout(active, self.capacity, "proportional")
             
+            # Calculate sheets
             possible_sheets = []
             for tag, ups in layout.items():
                 if ups > 0 and remaining.get(tag, 0) > 0:
@@ -35,6 +38,7 @@ class V3Optimizer(BaseOptimizer):
             
             sheets = max(1, min(possible_sheets)) if possible_sheets else 1
             
+            # Update remaining
             for tag, ups in layout.items():
                 remaining[tag] = max(0, remaining[tag] - (ups * sheets))
             
