@@ -989,6 +989,13 @@ else:
             cleaned_data = []
             skipped_rows = 0
             
+            # ডিকশনারি তৈরি করার জন্য খালি লিস্ট
+            style_list = []
+            color_list = []
+            size_list = []
+            qty_list = []
+            sl_list = []
+            
             for idx, (sl, style, color, size, qty) in enumerate(zip(sl_data, style_data, color_data, size_data, qty_data)):
                 if pd.isna(qty):
                     skipped_rows += 1
@@ -1003,8 +1010,13 @@ else:
                         sl_val = int(sl) if not pd.isna(sl) and str(sl).strip() != '' else idx + 1
                         
                         cleaned_data.append((sl_val, style_val, color_val, size_val, qty_int))
-                        final_original_qty[style_val] = qty_int
-                        final_demand[style_val] = math.ceil(qty_int * (1 + addon_percent / 100))
+                        
+                        # লিস্টে যোগ করা
+                        sl_list.append(sl_val)
+                        style_list.append(style_val)
+                        color_list.append(color_val)
+                        size_list.append(size_val)
+                        qty_list.append(qty_int)
                     else:
                         skipped_rows += 1
                 except (ValueError, TypeError):
@@ -1015,12 +1027,7 @@ else:
                 st.error("❌ No valid data found in the file. Please check the format.")
                 st.stop()
             
-            sl_list = [item[0] for item in cleaned_data]
-            style_list = [item[1] for item in cleaned_data]
-            color_list = [item[2] for item in cleaned_data]
-            size_list = [item[3] for item in cleaned_data]
-            qty_list = [item[4] for item in cleaned_data]
-            
+            # Preview DataFrame
             preview_df = pd.DataFrame({
                 "SL": sl_list,
                 "Style": style_list,
@@ -1048,13 +1055,18 @@ else:
             tags = [f"Item {i+1}" for i in range(n)]
             qty = qty_list
             
+            # Store style/color/size data in session state
             st.session_state['item_styles'] = {f"Item {i+1}": style_list[i] for i in range(n)}
             st.session_state['item_colors'] = {f"Item {i+1}": color_list[i] for i in range(n)}
             st.session_state['item_sizes'] = {f"Item {i+1}": size_list[i] for i in range(n)}
             
-            original_qty = {t: int(q) for t, q in zip(tags, qty) if q > 0}
-            # এখানে math.ceil এবং addon_percent ঠিক করে দেওয়া হয়েছে
-            demand = {t: math.ceil(int(q) * (1 + addon_percent / 100)) for t, q in zip(tags, qty) if q > 0}
+            # Create original_qty and demand dictionaries
+            original_qty = {}
+            demand = {}
+            for t, q in zip(tags, qty):
+                if q > 0:
+                    original_qty[t] = int(q)
+                    demand[t] = math.ceil(int(q) * (1 + addon_percent / 100))
             
         except Exception as e:
             st.error(f"❌ Error reading file: {str(e)}")
