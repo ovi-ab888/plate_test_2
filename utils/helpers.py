@@ -9,7 +9,7 @@ import pandas as pd
 
 
 def plate_name(n: int) -> str:
-    """Convert number to Excel-style column name (A, B, C, ..., Z, AA, AB, ...)"""
+    """Convert number to Excel-style column name"""
     n -= 1
     chars = string.ascii_uppercase
     out = ""
@@ -22,17 +22,13 @@ def plate_name(n: int) -> str:
 
 
 def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "balanced") -> Dict[str, int]:
-    """
-    Create a layout that respects capacity even when items > capacity
-    Methods: "balanced", "proportional", "greedy"
-    """
+    """Create a layout that respects capacity"""
     if not active:
         return {}
     
     total_qty = sum(active.values())
     n_items = len(active)
     
-    # Special case: more items than capacity
     if n_items > capacity:
         layout = {}
         
@@ -93,7 +89,6 @@ def create_valid_layout(active: Dict[str, int], capacity: int, method: str = "ba
             
             return layout
     
-    # Normal case: items <= capacity
     layout = {}
     
     if method == "balanced":
@@ -164,7 +159,7 @@ def ensure_demand_met(plates: List[Dict[str, Any]], demand: Dict[str, int]) -> L
 
 
 def calculate_waste_percent(plates: List[Dict[str, Any]], demand: Dict[str, int]) -> float:
-    """Calculate waste percentage from plates and demand"""
+    """Calculate waste percentage"""
     total_produced = 0
     total_demand = sum(demand.values())
     
