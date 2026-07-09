@@ -978,22 +978,45 @@ if generate_clicked:
                 
 
                 
-                st.markdown("---")
-                st.markdown("## 📋 Best Algorithm Report")
-                
-                summary_df = build_full_summary(best_plates, demand, original_qty)
-                st.dataframe(summary_df, use_container_width=True, height=300)
-                
-                st.markdown("### 🧾 Plate Details")
-                plate_rows = []
-                for idx, p in enumerate(best_plates, 1):
-                    plate_rows.append({
-                        "SL": idx,
-                        "Plate ID": p.get("name", f"Plate {idx}"),
-                        "Sheets": p.get("sheets", 0),
+# ================================================================
+# BEST ALGORITHM REPORT
+# ================================================================
+st.markdown("---")
+st.markdown("## 📋 Best Algorithm Report")
 
-                    })
-                st.dataframe(pd.DataFrame(plate_rows), use_container_width=True)
+# Summary
+summary_df = build_full_summary(best_plates, demand, original_qty)
+st.dataframe(summary_df, use_container_width=True, height=300)
+
+# Plate Details with Total Row
+st.markdown("### 🧾 Plate Details")
+
+plate_rows = []
+total_sheets_sum = 0
+total_ups_sum = 0
+
+for idx, p in enumerate(best_plates, 1):
+    total_ups = sum(p["layout"].values())
+    plate_name_str = p.get("name", f"Plate {idx}")
+    plate_rows.append({
+        "SL": idx,
+        "Plate ID": plate_name_str,
+        "Sheets": p.get("sheets", 0),
+        "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
+    })
+    total_sheets_sum += p.get("sheets", 0)
+    total_ups_sum += total_ups
+
+# Add Total Row
+plate_rows.append({
+    "SL": "📊",
+    "Plate ID": "**TOTAL**",
+    "Sheets": total_sheets_sum,
+    "Layout": f"Total UPS: {total_ups_sum}"
+})
+
+plate_details_df = pd.DataFrame(plate_rows)
+st.dataframe(plate_details_df, use_container_width=True)
                 
                 # ================================================================
                 # REPORT DOWNLOAD BUTTONS
