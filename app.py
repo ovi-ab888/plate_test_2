@@ -985,9 +985,34 @@ if generate_clicked:
                 st.markdown("---")
                 st.markdown("## 📋 Best Algorithm Report")
 
-                # Summary
+                # Summary with Total
                 summary_df = build_full_summary(best_plates, demand, original_qty)
-                st.dataframe(summary_df, use_container_width=True, height=300)
+
+                # Ensure Total row exists
+                if not summary_df.empty:
+                    if summary_df.iloc[-1]["Tag"] != "TOTAL":
+                        total_row = {
+                            "SL": "📊",
+                            "Tag": "TOTAL",
+                            "Original QTY": summary_df["Original QTY"].sum(),
+                            "Produced (+Add-on)": summary_df["Produced (+Add-on)"].sum(),
+                        }
+                        
+                        for col in summary_df.columns:
+                            if col.startswith("Plate "):
+                                total_row[col] = summary_df[col].sum()
+                        
+                        total_row["Total Produced QTY"] = summary_df["Total Produced QTY"].sum()
+                        total_excess = summary_df["Excess"].sum()
+                        total_row["Excess"] = total_excess
+                        
+                        total_produced_qty = total_row["Total Produced QTY"]
+                        total_excess_percent = round((total_excess / total_produced_qty) * 100, 2) if total_produced_qty > 0 else 0
+                        total_row["Excess %"] = f"{total_excess_percent}%"
+                        
+                        summary_df = pd.concat([summary_df, pd.DataFrame([total_row])], ignore_index=True)
+
+                st.dataframe(summary_df, use_container_width=True, height=350)
 
                 # Plate Details with Total Row
                 st.markdown("### 🧾 Plate Details")
@@ -1049,7 +1074,6 @@ if generate_clicked:
                         )
                     else:
                         st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
-
 # ================================================================
 # FOOTER
 # ================================================================
