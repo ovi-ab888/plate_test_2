@@ -39,7 +39,7 @@ ALGORITHM_REGISTRY = {
     "V6 - Integer Solver": V6Optimizer,
     "V7 - Simulated Annealing": V7Optimizer,
     "V8 - MCTS Tree Search": V8Optimizer,
-    "V9 - algo_smart_clustering_optimizer": V9Optimizer,
+    "V9 - Smart Clustering Optimizer": V9Optimizer,
     "V10 - Greedy with Lookahead": V10Optimizer,
     "V11 - Genetic Algorithm": V11Optimizer,
     "V12 - Column Generation": V12Optimizer,
