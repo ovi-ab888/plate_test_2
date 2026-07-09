@@ -1,10 +1,11 @@
 """
 V2 - Common Sheet Optimizer
+Greedy allocation with common sheet count
 """
 
 from typing import Dict, List, Any
 from algorithms.base import BaseOptimizer
-from algorithms.v1 import create_valid_layout, plate_name, ensure_demand_met
+from algorithms.v1_helpers import create_valid_layout, plate_name, ensure_demand_met
 import math
 
 
@@ -26,8 +27,10 @@ class V2Optimizer(BaseOptimizer):
             if not active:
                 break
             
+            # Create layout using greedy method
             layout = create_valid_layout(active, self.capacity, "greedy")
             
+            # Calculate sheets - use minimum to avoid waste
             possible_sheets = []
             for tag, ups in layout.items():
                 if ups > 0 and remaining.get(tag, 0) > 0:
@@ -35,6 +38,7 @@ class V2Optimizer(BaseOptimizer):
             
             sheets = max(1, min(possible_sheets)) if possible_sheets else 1
             
+            # Update remaining
             for tag, ups in layout.items():
                 remaining[tag] = max(0, remaining[tag] - (ups * sheets))
             
@@ -44,4 +48,5 @@ class V2Optimizer(BaseOptimizer):
                 "sheets": sheets
             })
         
+        # Ensure all demand is met
         return ensure_demand_met(plates, self.demand)
