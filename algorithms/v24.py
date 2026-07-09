@@ -24,34 +24,36 @@ class V24Optimizer(BaseOptimizer):
         self.generations = generations
         self.F = F
         self.CR = CR
+        self.tags = list(demand.keys())
+        self.n_tags = len(self.tags)
     
     def optimize(self) -> List[Dict[str, Any]]:
         """Execute V24 optimization with Differential Evolution"""
-        tags = list(self.demand.keys())
-        n_tags = len(tags)
+        if self.n_tags == 0:
+            return []
         
         def encode_plates_to_vector(plates):
             """Encode plates to a vector for DE"""
             vector = []
             for plate in plates:
-                for tag in tags:
+                for tag in self.tags:
                     vector.append(plate["layout"].get(tag, 0) / self.capacity)
                 vector.append(plate["sheets"] / 1000.0)
             
             # Pad if needed
-            while len(vector) < self.max_plates * (n_tags + 1):
+            while len(vector) < self.max_plates * (self.n_tags + 1):
                 vector.append(0)
             
-            return vector[:self.max_plates * (n_tags + 1)]
+            return vector[:self.max_plates * (self.n_tags + 1)]
         
         def decode_vector_to_plates(vector):
             """Decode vector back to plates"""
             plates = []
             for i in range(self.max_plates):
-                start_idx = i * (n_tags + 1)
+                start_idx = i * (self.n_tags + 1)
                 layout = {}
                 
-                for j, tag in enumerate(tags):
+                for j, tag in enumerate(self.tags):
                     ups = int(vector[start_idx + j] * self.capacity)
                     if ups > 0:
                         layout[tag] = max(1, min(ups, self.capacity))
@@ -63,7 +65,7 @@ class V24Optimizer(BaseOptimizer):
                 active = {tag: self.demand.get(tag, 0) for tag in layout.keys()}
                 layout = create_valid_layout(active, self.capacity, "proportional")
                 
-                sheets = max(1, int(vector[start_idx + n_tags] * 1000))
+                sheets = max(1, int(vector[start_idx + self.n_tags] * 1000))
                 
                 plates.append({
                     "name": plate_name(len(plates) + 1),
