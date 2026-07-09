@@ -1,7 +1,7 @@
 # utils/pdf_generator.py
 
 """
-PDF Report Generator - With Even Larger Font Sizes
+PDF Report Generator - Without Layout Column
 """
 
 from io import BytesIO
@@ -111,7 +111,7 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
         story.append(Spacer(1, 12))
         
         # ================================================================
-        # MAIN SUMMARY TABLE - বড় ফন্ট
+        # MAIN SUMMARY TABLE
         # ================================================================
         
         # Build header with all columns
@@ -159,29 +159,29 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
         total_row.extend([str(total_produced_sum), str(total_excess_sum), total_excess_percent])
         summary_data.append(total_row)
         
-        # Create main table with larger fonts
+        # Create main table
         main_table = Table(summary_data, repeatRows=1)
         
-        # Table style with larger fonts
+        # Table style
         table_style = [
-            # Header row - বড় ফন্ট, গাঢ়
+            # Header row
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),  # Header font size বড়
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
             ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
             
-            # Data rows - বড় ফন্ট
+            # Data rows
             ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -2), 11),  # Data font size বড়
+            ('FONTSIZE', (0, 1), (-1, -2), 11),
             ('ALIGN', (0, 1), (-1, -2), 'CENTER'),
             ('VALIGN', (0, 1), (-1, -2), 'MIDDLE'),
             
-            # Total row - বড় ফন্ট, গাঢ়
+            # Total row
             ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#e8f0fe')),
             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 12),  # Total row font size বড়
+            ('FONTSIZE', (0, -1), (-1, -1), 12),
             ('ALIGN', (0, -1), (-1, -1), 'CENTER'),
             ('VALIGN', (0, -1), (-1, -1), 'MIDDLE'),
             
@@ -189,7 +189,7 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             
-            # Padding - বেশি
+            # Padding
             ('TOPPADDING', (0, 0), (-1, -1), 8),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
             ('LEFTPADDING', (0, 0), (-1, -1), 10),
@@ -206,32 +206,29 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
         story.append(Spacer(1, 18))
         
         # ================================================================
-        # PLATE DETAILS TABLE - বড় ফন্ট
+        # PLATE DETAILS TABLE (Without Layout Column)
         # ================================================================
         story.append(Paragraph("🧾 Plate Configuration Details", section_header_style))
         story.append(Spacer(1, 10))
         
-        plate_data = [["SL", "Plate ID", "Sheets", "Total UPS", "Layout"]]
+        plate_data = [["SL", "Plate ID", "Sheets", "Total UPS"]]
         
         for idx, p in enumerate(plates, 1):
-            layout_str = ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
             plate_data.append([
                 str(idx),
                 p["name"],
                 str(p["sheets"]),
-                str(sum(p["layout"].values())),
-                layout_str
+                str(sum(p["layout"].values()))
             ])
         
-        # Add total row for plate details
+        # Add total row
         total_sheets = sum(p["sheets"] for p in plates)
         total_ups = sum(sum(p["layout"].values()) for p in plates)
         plate_data.append([
             "📊",
             "TOTAL",
             str(total_sheets),
-            str(total_ups),
-            "-"
+            str(total_ups)
         ])
         
         plate_table = Table(plate_data)
