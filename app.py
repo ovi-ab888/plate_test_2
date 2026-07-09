@@ -26,7 +26,7 @@ st.set_page_config(
     page_title="Plate Ratio System - Complete Edition",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # ================================================================
@@ -507,31 +507,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================================================================
-# SIDEBAR - Configuration & Input Method
+# SIDEBAR - শুধু Input Method
 # ================================================================
 with st.sidebar:
     st.markdown("""
     <div style="text-align: center; padding: 0.5rem 0 1rem 0;">
-        <h2 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">⚙️ Configuration</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Configuration Parameters
-    capacity = st.number_input("📀 Plate Capacity (UPS)", min_value=1, max_value=200, value=10, help="Units Per Sheet")
-    max_plates = st.number_input("🎨 Max Plates", min_value=1, max_value=50, value=3, help="Maximum number of plates")
-    addon_percent = st.number_input("📈 Add-on (%)", min_value=0.0, max_value=50.0, value=0.0, step=0.5, help="Safety stock percentage")
-    job_number = st.text_input(
-        "🔢 Job Number",
-        value=f"JOB-{datetime.now().strftime('%Y%m%d_%H%M')}",
-        help="Enter a job number for tracking"
-    )
-    
-    st.markdown("---")
-    
-    # Input Method
-    st.markdown("""
-    <div style="text-align: center; padding: 0.25rem 0;">
-        <h3 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; font-size: 1.1rem;">📦 Input Method</h3>
+        <h3 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">📦 Input Method</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -546,10 +527,9 @@ with st.sidebar:
     
     # Algorithm Info
     st.markdown(f"""
-    <div style="background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%); border-radius: 12px; padding: 1rem; text-align: center; border: 1px solid rgba(102,126,234,0.3);">
-        <p style="margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);">🧠 Algorithms Loaded</p>
-        <p style="margin: 0.25rem 0; font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{len(ALGORITHM_REGISTRY)}</p>
-        <p style="margin: 0; font-size: 0.7rem; color: rgba(255,255,255,0.4);">V1 - V26 Complete</p>
+    <div style="background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%); border-radius: 10px; padding: 0.75rem; text-align: center; border: 1px solid rgba(102,126,234,0.2);">
+        <p style="margin: 0; font-size: 0.75rem; color: rgba(255,255,255,0.5);">🧠 {len(ALGORITHM_REGISTRY)} Algorithms</p>
+        <p style="margin: 0; font-size: 0.65rem; color: rgba(255,255,255,0.3);">V1 - V26 Complete</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -558,21 +538,19 @@ with st.sidebar:
     # About
     with st.expander("📊 About", expanded=False):
         st.markdown("""
-        This system uses **26 different algorithms** to find the optimal plate ratio.
-        
-        **Algorithm Categories:**
-        - V1-V10: Classical Methods
-        - V11-V18: Evolutionary Methods
-        - V19-V26: AI & ML Methods
+        **26 Algorithms:**
+        - V1-V10: Classical
+        - V11-V18: Evolutionary
+        - V19-V26: AI & ML
         
         **Features:**
-        - ✅ Excel & PDF Reports
-        - ✅ Dark/Light Mode
-        - ✅ Production Ready
+        - Excel & PDF Reports
+        - Dark/Light Mode
+        - Production Ready
         """)
 
 # ================================================================
-# EXCEL REPORT GENERATOR (Built-in)
+# EXCEL REPORT GENERATOR
 # ================================================================
 def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent, job_number=""):
     """Generate Excel report"""
@@ -615,7 +593,7 @@ def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent
     return bio
 
 # ================================================================
-# PDF REPORT GENERATOR (Built-in)
+# PDF REPORT GENERATOR
 # ================================================================
 def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, job_number=""):
     """Generate PDF report"""
@@ -625,7 +603,6 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib.enums import TA_CENTER
-        from reportlab.lib.units import inch
     except ImportError:
         return None
     
@@ -665,7 +642,7 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         
         story = []
         
-        # Header with Job Number
+        # Header
         story.append(Paragraph("📊 Plate Ratio System - Report", title_style))
         if job_number:
             story.append(Paragraph(f"🔢 Job Number: {job_number}", job_style))
@@ -803,6 +780,29 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================================================================
+# MAIN CONTENT - Configuration
+# ================================================================
+st.markdown("""
+<div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1);">
+    <h3 style="margin: 0 0 1rem 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; border-bottom: 2px solid #667eea; display: inline-block; padding-bottom: 0.5rem;">⚙️ Configuration</h3>
+</div>
+""", unsafe_allow_html=True)
+
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    capacity = st.number_input("📀 Plate Capacity (UPS)", min_value=1, max_value=200, value=10)
+with col2:
+    max_plates = st.number_input("🎨 Max Plates", min_value=1, max_value=50, value=3)
+with col3:
+    addon_percent = st.number_input("📈 Add-on (%)", min_value=0.0, max_value=50.0, value=0.0, step=0.5)
+with col4:
+    job_number = st.text_input(
+        "🔢 Job Number",
+        value=f"JOB-{datetime.now().strftime('%Y%m%d_%H%M')}",
+        help="Enter a job number for tracking"
+    )
+
+# ================================================================
 # MAIN CONTENT - Item Entry
 # ================================================================
 st.markdown("""
@@ -901,6 +901,9 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     generate_clicked = st.button("🚀 Generate Plans", type="primary", use_container_width=True)
 
+# ================================================================
+# RESULTS SECTION
+# ================================================================
 if generate_clicked:
     if not data:
         st.error("⚠️ Please enter at least one item with quantity > 0")
@@ -997,7 +1000,6 @@ if generate_clicked:
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # Excel Report
                     excel_buffer = generate_excel_report(best_plates, demand, original_qty, best_algo, best_waste, job_number)
                     st.download_button(
                         "📊 Download Excel Report",
@@ -1008,7 +1010,6 @@ if generate_clicked:
                     )
                 
                 with col2:
-                    # PDF Report
                     pdf_buffer = generate_pdf_report(best_plates, demand, original_qty, best_algo, best_waste, job_number)
                     if pdf_buffer:
                         st.download_button(
@@ -1021,7 +1022,9 @@ if generate_clicked:
                     else:
                         st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
 
-# Footer
+# ================================================================
+# FOOTER
+# ================================================================
 st.markdown("""
 <div class="footer-border" style="text-align: center; padding: 2rem; margin-top: 3rem; border-top: 2px solid rgba(102,126,234,0.3); border-radius: 20px;">
     <p class="footer-text" style="margin: 0; font-size: 0.85rem;">
