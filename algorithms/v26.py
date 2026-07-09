@@ -133,3 +133,59 @@ class V26Optimizer(BaseOptimizer):
                 sheets = plate["sheets"]
                 fixed.append({"layout": layout, "sheets": sheets})
                 
+                for tag, ups in layout.items():
+                    remaining[tag] = max(0, remaining[tag] - (ups * sheets))
+            
+            if any(v > 0 for v in remaining.values()) and fixed:
+                last = fixed[-1]
+                for tag in remaining:
+                    if remaining[tag] > 0:
+                        ups = max(1, last["layout"].get(tag, 1))
+                        last["sheets"] += math.ceil(remaining[tag] / ups)
+                        remaining[tag] = 0
+            
+            return ensure_demand_met(fixed, self.demand)
+        
+        # Initialize population
+        population = []
+        for _ in range(population_size):
+            ind = create_individual_with_ml()
+            population.append(ind)
+        
+        # Evolution with learning
+        for generation in range(generations):
+            # Evaluate and learn
+            scored = [(calculate_waste_percent(ind, self.demand), ind) for ind in population]
+            scored.sort(key=lambda x: x[0])
+            
+            # Learn from best individuals
+            for i in range(min(3, len(scored))):
+                waste, best_ind = scored[i]
+                for plate in best_ind:
+                    predictor.learn_from_plate(plate["layout"], waste)
+            
+            # Select elites
+            elites = [copy.deepcopy(scored[i][1]) for i in range(min(3, len(scored)))]
+            new_population = elites.copy()
+            
+            # Create offspring
+            while len(new_population) < population_size:
+                p1 = copy.deepcopy(random.choice(elites))
+                p2 = copy.deepcopy(random.choice(elites))
+                child = crossover_plates(p1, p2)
+                
+                if random.random() < 0.3:
+                    child = mutate_with_ml(child)
+                
+                new_population.append(child)
+            
+            population = new_population
+        
+        # Get best solution
+        best_idx = min(range(len(population)), 
+                      key=lambda i: calculate_waste_percent(population[i], self.demand))
+        return ensure_demand_met(population[best_idx], self.demand) if population else self._fallback()
+    
+    def _fallback(self):
+        from algorithms.v3 import V3Optimizer
+        return V3Optimizer(self.demand, self.capacity, self.max_plates).optimize()
