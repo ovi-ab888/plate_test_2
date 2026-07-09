@@ -26,7 +26,7 @@ st.set_page_config(
     page_title="Plate Ratio System - Complete Edition",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # ================================================================
@@ -249,6 +249,16 @@ st.markdown("""
         color: rgba(255,255,255,0.9) !important;
     }
     
+    /* Dark Mode Sidebar */
+    .css-1d391kg {
+        background: rgba(255,255,255,0.05) !important;
+        backdrop-filter: blur(10px) !important;
+        border-right: 1px solid rgba(255,255,255,0.1) !important;
+    }
+    .css-1d391kg .stMarkdown, .css-1d391kg .stMarkdown p {
+        color: rgba(255,255,255,0.9) !important;
+    }
+    
     /* Dark Mode Dataframe */
     .stDataFrame { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 0.5rem; }
     .stDataFrame table { color: rgba(255,255,255,0.9) !important; }
@@ -412,6 +422,15 @@ st.markdown("""
             color: #1a1a3e !important;
         }
         
+        /* Light Mode Sidebar */
+        .css-1d391kg {
+            background: rgba(255,255,255,0.95) !important;
+            border-right: 1px solid rgba(0,0,0,0.08) !important;
+        }
+        .css-1d391kg .stMarkdown, .css-1d391kg .stMarkdown p {
+            color: #1a1a3e !important;
+        }
+        
         .stDataFrame { background: white !important; }
         .stDataFrame table { color: #1a1a3e !important; }
         .stDataFrame thead tr th { background: rgba(102,126,234,0.1) !important; color: #1a1a3e !important; }
@@ -486,6 +505,71 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
+# ================================================================
+# SIDEBAR - Configuration & Input Method
+# ================================================================
+with st.sidebar:
+    st.markdown("""
+    <div style="text-align: center; padding: 0.5rem 0 1rem 0;">
+        <h2 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">⚙️ Configuration</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Configuration Parameters
+    capacity = st.number_input("📀 Plate Capacity (UPS)", min_value=1, max_value=200, value=10, help="Units Per Sheet")
+    max_plates = st.number_input("🎨 Max Plates", min_value=1, max_value=50, value=3, help="Maximum number of plates")
+    addon_percent = st.number_input("📈 Add-on (%)", min_value=0.0, max_value=50.0, value=0.0, step=0.5, help="Safety stock percentage")
+    job_number = st.text_input(
+        "🔢 Job Number",
+        value=f"JOB-{datetime.now().strftime('%Y%m%d_%H%M')}",
+        help="Enter a job number for tracking"
+    )
+    
+    st.markdown("---")
+    
+    # Input Method
+    st.markdown("""
+    <div style="text-align: center; padding: 0.25rem 0;">
+        <h3 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; font-size: 1.1rem;">📦 Input Method</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    input_method = st.radio(
+        "Select Input Method:",
+        ["✏️ Manual Entry", "📂 Upload Excel"],
+        index=0,
+        label_visibility="collapsed"
+    )
+    
+    st.markdown("---")
+    
+    # Algorithm Info
+    st.markdown(f"""
+    <div style="background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%); border-radius: 12px; padding: 1rem; text-align: center; border: 1px solid rgba(102,126,234,0.3);">
+        <p style="margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);">🧠 Algorithms Loaded</p>
+        <p style="margin: 0.25rem 0; font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{len(ALGORITHM_REGISTRY)}</p>
+        <p style="margin: 0; font-size: 0.7rem; color: rgba(255,255,255,0.4);">V1 - V26 Complete</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # About
+    with st.expander("📊 About", expanded=False):
+        st.markdown("""
+        This system uses **26 different algorithms** to find the optimal plate ratio.
+        
+        **Algorithm Categories:**
+        - V1-V10: Classical Methods
+        - V11-V18: Evolutionary Methods
+        - V19-V26: AI & ML Methods
+        
+        **Features:**
+        - ✅ Excel & PDF Reports
+        - ✅ Dark/Light Mode
+        - ✅ Production Ready
+        """)
 
 # ================================================================
 # EXCEL REPORT GENERATOR (Built-in)
@@ -707,10 +791,8 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         return None
 
 # ================================================================
-# MAIN APP UI
+# MAIN CONTENT - Header
 # ================================================================
-
-# Header
 st.markdown("""
 <div class="main-header">
     <h1>📊 Plate Ratio Intelligence System</h1>
@@ -719,53 +801,6 @@ st.markdown("""
     <p style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">✨ Design by Ovi ✨</p>
 </div>
 """, unsafe_allow_html=True)
-
-# ================================================================
-# CONFIGURATION SECTION (Top)
-# ================================================================
-st.markdown("""
-<div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1);">
-    <h3 style="margin: 0 0 1rem 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; border-bottom: 2px solid #667eea; display: inline-block; padding-bottom: 0.5rem;">⚙️ Configuration</h3>
-</div>
-""", unsafe_allow_html=True)
-
-# Configuration in 2 rows
-col1, col2, col3, col4, col5 = st.columns(5)
-with col1:
-    capacity = st.number_input("📀 Plate Capacity (UPS)", min_value=1, max_value=200, value=10)
-with col2:
-    max_plates = st.number_input("🎨 Max Plates", min_value=1, max_value=50, value=3)
-with col3:
-    addon_percent = st.number_input("📈 Add-on (%)", min_value=0.0, max_value=50.0, value=0.0, step=0.5)
-with col4:
-    job_number = st.text_input(
-        "🔢 Job Number",
-        value=f"JOB-{datetime.now().strftime('%Y%m%d_%H%M')}",
-        help="Enter a job number for tracking"
-    )
-with col5:
-    st.markdown(f"""
-    <div style="background: linear-gradient(135deg, rgba(102,126,234,0.2) 0%, rgba(118,75,162,0.2) 100%); border-radius: 12px; padding: 0.5rem; text-align: center; border: 1px solid rgba(102,126,234,0.3); margin-top: 1.5rem;">
-        <p style="margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Algorithms: <strong style="color: #667eea;">{len(ALGORITHM_REGISTRY)}</strong></p>
-        <p style="margin: 0; font-size: 0.75rem; color: rgba(255,255,255,0.5);">V1 - V26 Complete</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-# ================================================================
-# INPUT METHOD (Below Configuration)
-# ================================================================
-st.markdown("""
-<div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1);">
-    <h3 style="margin: 0 0 1rem 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; border-bottom: 2px solid #667eea; display: inline-block; padding-bottom: 0.5rem;">📦 Input Method</h3>
-</div>
-""", unsafe_allow_html=True)
-
-input_method = st.radio(
-    "Select Input Method:",
-    ["✏️ Manual Entry", "📂 Upload Excel"],
-    horizontal=True,
-    index=0
-)
 
 # ================================================================
 # MAIN CONTENT - Item Entry
@@ -805,7 +840,7 @@ if input_method == "✏️ Manual Entry":
                 "Quantity": qty
             })
 
-else:
+else:  # Upload Excel
     uploaded_file = st.file_uploader("Upload Excel file", type=["xlsx", "xls"])
     if uploaded_file:
         try:
