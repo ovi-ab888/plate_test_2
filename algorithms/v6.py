@@ -5,7 +5,7 @@ Uses PuLP for integer programming optimization
 
 from typing import Dict, List, Any
 from algorithms.base import BaseOptimizer
-from utils.helpers import ensure_demand_met, plate_name, create_valid_layout
+from algorithms.v1_helpers import plate_name, ensure_demand_met
 import math
 
 
@@ -38,6 +38,7 @@ class V6Optimizer(BaseOptimizer):
                 ups = {t: LpVariable(f"UPS_{t}", lowBound=0, cat="Integer") for t in active_tags}
                 sheets = LpVariable("Sheets", lowBound=1, cat="Integer")
                 
+                # Minimize excess production
                 model += lpSum(ups[t] * sheets - remaining[t] for t in active_tags)
                 model += lpSum(ups[t] for t in active_tags) == self.capacity
                 
@@ -49,6 +50,19 @@ class V6Optimizer(BaseOptimizer):
                 if model.status == 1:
                     layout = {t: int(value(ups[t])) for t in active_tags}
                     sheet_count = int(value(sheets))
+                    
+                    # Ensure no zero UPS
+                    for tag in active_tags:
+                        if layout.get(tag, 0) == 0:
+                            layout[tag] = 1
+                    
+                    # Fix capacity if needed
+                    while sum(layout.values()) > self.capacity:
+                        max_tag = max(layout, key=layout.get)
+                        if layout[max_tag] > 1:
+                            layout[max_tag] -= 1
+                        else:
+                            break
                     
                     plates.append({
                         "name": plate_name(plate_num + 1),
