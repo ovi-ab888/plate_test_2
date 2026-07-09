@@ -976,8 +976,7 @@ if generate_clicked:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                with st.expander("📊 All Algorithms Comparison", expanded=False):
-                    st.dataframe(comparison_df, use_container_width=True)
+
                 
                 st.markdown("---")
                 st.markdown("## 📋 Best Algorithm Report")
