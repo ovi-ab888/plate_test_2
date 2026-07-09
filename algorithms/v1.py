@@ -1,1 +1,59 @@
+"""
+V1 - Plate Ratio System (Basic Version)
+Simple proportional distribution algorithm
+"""
 
+from typing import Dict, List, Any
+from .base import BaseOptimizer
+from ..utils.helpers import create_valid_layout, plate_name, ensure_demand_met
+
+
+class V1Optimizer(BaseOptimizer):
+    """V1 - Basic Plate Ratio System"""
+    
+    def __init__(self, demand: Dict[str, int], capacity: int, max_plates: int):
+        super().__init__(demand, capacity, max_plates)
+        self.name = "V1 - Plate Ratio System"
+        self.version = "V1"
+    
+    def optimize(self) -> List[Dict[str, Any]]:
+        """Execute V1 optimization"""
+        remaining = self.demand.copy()
+        plates = []
+        
+        for i in range(self.max_plates):
+            active = {k: v for k, v in remaining.items() if v > 0}
+            if not active:
+                break
+            
+            # Create layout using balanced method
+            layout = create_valid_layout(active, self.capacity, "balanced")
+            
+            # Calculate sheets
+            sheets = self._calculate_sheets(layout, remaining)
+            
+            # Update remaining
+            for tag, ups in layout.items():
+                remaining[tag] = max(0, remaining[tag] - (ups * sheets))
+            
+            plates.append({
+                "name": plate_name(i + 1),
+                "layout": layout,
+                "sheets": sheets
+            })
+        
+        # Ensure all demand is met
+        return ensure_demand_met(plates, self.demand)
+    
+    def _calculate_sheets(self, layout: Dict[str, int], remaining: Dict[str, int]) -> int:
+        """Calculate number of sheets needed"""
+        if not layout:
+            return 1
+        
+        possible_sheets = []
+        for tag, ups in layout.items():
+            if ups > 0 and remaining.get(tag, 0) > 0:
+                from math import ceil
+                possible_sheets.append(ceil(remaining[tag] / ups))
+        
+        return max(1, min(possible_sheets)) if possible_sheets else 1
