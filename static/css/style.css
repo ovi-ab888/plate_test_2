@@ -554,3 +554,9 @@ footer {
         padding: 1rem;
     }
 }
+
+/* Sidebar Visible */
+section[data-testid="stSidebar"] {
+    display: flex !important;
+    width: 300px !important;
+}
