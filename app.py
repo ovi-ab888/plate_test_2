@@ -637,7 +637,7 @@ def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent
             "Plate ID": "",
             "Sheets Required": total_sheets_sum,
             "Total UPS": total_ups_sum,
-            "Layout": ""
+
         })
         
         plate_df = pd.DataFrame(plate_rows)
