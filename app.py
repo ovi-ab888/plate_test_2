@@ -1295,178 +1295,129 @@ if generate_clicked:
         st.dataframe(styled_df, use_container_width=True, height=400)
 
 # ================================================================
-# VIEW ANY ALGORITHM REPORT - Best Algorithm Report এর পর
+# RUN ALGORITHMS BLOCK (UPDATED WITH SESSION STATE)
 # ================================================================
-# Check if results exists and has data
-if 'results' in locals() and results:
-    st.markdown("---")
-    st.markdown("## 📊 View Any Algorithm Report")
-    
-    # Initialize session state for view
-    if 'view_selected_algo' not in st.session_state:
-        st.session_state.view_selected_algo = list(results.keys())[0] if results else None
-    if 'view_clicked' not in st.session_state:
-        st.session_state.view_clicked = False
-    
-    col1, col2 = st.columns([3, 1])
-    
-    with col1:
-        selected_algo = st.selectbox(
-            "Select an algorithm to view its detailed report:",
-            options=list(results.keys()),
-            index=0,
-            key="algo_selector",
-            label_visibility="collapsed"
-        )
-        # Store selected algorithm in session state
-        st.session_state.view_selected_algo = selected_algo
-    
-    with col2:
-        view_clicked = st.button("👁️ VIEW", key="view_algo_btn", use_container_width=True)
-        if view_clicked:
-            st.session_state.view_clicked = True
-    
-    # Show report if VIEW clicked OR if session state has view_clicked True
-    if st.session_state.view_clicked and st.session_state.view_selected_algo:
-        selected_algo = st.session_state.view_selected_algo
-        selected_plates = results[selected_algo]
-        selected_waste = calculate_waste_percent(selected_plates, demand)
+if generate_clicked:
+    with st.spinner("🤖 Executing all 26 core algorithms & compiling metrics..."):
+        all_results = {}
         
-        # Show selected algorithm info
-        st.markdown(f"""
-        <div style="background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%); 
-                    border-radius: 16px; padding: 1rem; margin-bottom: 1rem; 
-                    border: 1px solid rgba(102,126,234,0.3);">
-            <p style="margin: 0; font-size: 1.1rem; font-weight: 600; color: #667eea;">
-                📊 {selected_algo}
-            </p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: rgba(255,255,255,0.7);">
-                Waste: <strong style="color: #00b09b;">{selected_waste}%</strong> | 
-                Plates: <strong>{len(selected_plates)}</strong> | 
-                Sheets: <strong>{sum(p.get('sheets', 0) for p in selected_plates)}</strong>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        # 1. Run all algorithms and store in session_state
+        for idx in range(1, 27):
+            algo_id = f"V{idx}"
+            try:
+                algo_func = get_algorithm(algo_id)
+                if algo_func:
+                    # Run the algorithm
+                    res = algo_func(demand.copy(), original_qty.copy(), max_plates)
+                    if res and isinstance(res, dict) and "ratios" in res:
+                        all_results[algo_id] = res
+            except Exception as e:
+                st.warning(f"⚠️ {algo_id} failed to execute: {str(e)}")
         
-        # Validate selected plates capacity
-        for plate in selected_plates:
-            layout = plate["layout"]
-            total_ups = sum(layout.values())
+        # Save results and inputs in session_state so they persist across reruns
+        st.session_state["all_results"] = all_results
+        st.session_state["demand_data"] = demand
+        st.session_state["original_qty_data"] = original_qty
+        st.session_state["has_run"] = True
+
+# check if we have data stored in session state to display
+if st.session_state.get("has_run", False):
+    results = st.session_state["all_results"]
+    saved_demand = st.session_state["demand_data"]
+    saved_qty = st.session_state["original_qty_data"]
+    
+    # 2. Score and Rank algorithms
+    scored_algos = []
+    for algo_id, res in results.items():
+        ratios = res["ratios"]
+        waste_pct = calculate_waste_percent(ratios, saved_demand, saved_qty)
+        
+        total_plates_used = 0
+        for r in ratios:
+            total_plates_used += sum(r.get("plates_count", []))
             
-            if total_ups != capacity:
-                while sum(layout.values()) > capacity:
-                    max_tag = max(layout, key=layout.get)
-                    if layout[max_tag] > 1:
-                        layout[max_tag] -= 1
-                    else:
-                        break
-                
-                while sum(layout.values()) < capacity:
-                    best_tag = max(demand.keys(), key=lambda t: demand.get(t, 0) / (layout.get(t, 1) + 1))
-                    layout[best_tag] = layout.get(best_tag, 0) + 1
-                
-                plate["layout"] = layout
+        score = (100 - waste_pct) * 0.7 + (100 - min(total_plates_used * 2, 50)) * 0.3
         
-        # Summary for selected algorithm
-        st.markdown("### 📋 Report Summary")
-        selected_summary_df = build_full_summary(selected_plates, demand, original_qty)
-        
-        # Ensure Total row exists
-        if not selected_summary_df.empty:
-            if selected_summary_df.iloc[-1]["Tag"] != "TOTAL":
-                total_row = {
-                    "SL": "📊",
-                    "Tag": "TOTAL",
-                    "Original QTY": selected_summary_df["Original QTY"].sum(),
-                    "Produced (+Add-on)": selected_summary_df["Produced (+Add-on)"].sum(),
-                }
-                
-                for col in selected_summary_df.columns:
-                    if col.startswith("Plate "):
-                        total_row[col] = selected_summary_df[col].sum()
-                
-                total_row["Total Produced QTY"] = selected_summary_df["Total Produced QTY"].sum()
-                total_excess = selected_summary_df["Excess"].sum()
-                total_row["Excess"] = total_excess
-                
-                total_produced_qty = total_row["Total Produced QTY"]
-                total_excess_percent = round((total_excess / total_produced_qty) * 100, 2) if total_produced_qty > 0 else 0
-                total_row["Excess %"] = f"{total_excess_percent}%"
-                
-                selected_summary_df = pd.concat([selected_summary_df, pd.DataFrame([total_row])], ignore_index=True)
-        
-        st.dataframe(selected_summary_df, use_container_width=True, height=300)
-        
-        # Plate Details for selected algorithm
-        st.markdown("### 🧾 Plate Details")
-        
-        selected_plate_rows = []
-        selected_total_sheets = 0
-        selected_total_ups = 0
-        
-        for idx, p in enumerate(selected_plates, 1):
-            total_ups = sum(p["layout"].values())
-            plate_name_str = p.get("name", f"Plate {idx}")
-            selected_plate_rows.append({
-                "SL": idx,
-                "Plate ID": plate_name_str,
-                "Sheets": p.get("sheets", 0),
-                "Total UPS": total_ups,
-                "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
-            })
-            selected_total_sheets += p.get("sheets", 0)
-            selected_total_ups += total_ups
-        
-        selected_plate_rows.append({
-            "SL": "📊",
-            "Plate ID": "**TOTAL**",
-            "Sheets": selected_total_sheets,
-            "Total UPS": selected_total_ups,
-            "Layout": ""
+        scored_algos.append({
+            "id": algo_id,
+            "name": f"Algorithm {algo_id}",
+            "waste": waste_pct,
+            "plates": total_plates_used,
+            "score": round(score, 2),
+            "data": res
         })
         
-        selected_plate_df = pd.DataFrame(selected_plate_rows)
-        st.dataframe(selected_plate_df, use_container_width=True)
-        
-        # Download button for selected algorithm
-        st.markdown("### 📥 Download Selected Report")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            selected_excel = generate_excel_report(
-                selected_plates, demand, original_qty, 
-                selected_algo, selected_waste, job_number
-            )
-            st.download_button(
-                f"📊 Download {selected_algo} Excel",
-                selected_excel,
-                f"{selected_algo}_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True
-            )
-        
-        with col2:
-            selected_pdf = generate_pdf_report(
-                selected_plates, demand, original_qty, 
-                selected_algo, selected_waste, job_number
-            )
-            if selected_pdf:
-                st.download_button(
-                    f"📄 Download {selected_algo} PDF",
-                    selected_pdf,
-                    f"{selected_algo}_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
-                )
-            else:
-                st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
+    scored_algos = sorted(scored_algos, key=lambda x: x["score"], reverse=True)
     
-    # Reset view state if needed (optional: add a close button)
-    if st.session_state.view_clicked:
-        if st.button("❌ Close Report", key="close_view_btn"):
-            st.session_state.view_clicked = False
-            st.rerun()
+    # Display the Best Algorithm Report at the top
+    best_algo = scored_algos[0]
+    
+    st.markdown(f"### 🏆 Best Algorithm Report: {best_algo['name']}")
+    
+    col_m1, col_m2, col_m3 = st.columns(3)
+    col_m1.metric("Optimization Score", f"{best_algo['score']}/100")
+    col_m2.metric("Waste Percentage", f"{best_algo['waste']:.2f}%")
+    col_m3.metric("Total Plates Used", f"{best_algo['plates']} Pcs")
+    
+    # Display best algo details
+    st.write("#### Optimized Ratios:")
+    st.dataframe(pd.DataFrame(best_algo["data"]["ratios"]), use_container_width=True)
+    
+    st.markdown("---")
+    
+    # ================================================================
+    # VIEW ANY ALGORITHM REPORT SECTION
+    # ================================================================
+    st.markdown("### 🔍 View Any Algorithm Report")
+    st.info("💡 You can select, view, and download reports for any of the 26 algorithms below.")
+    
+    # Create selection list from actually succeeded algorithms
+    algo_options = [f"V{i}" for i in range(1, 27) if f"V{i}" in results]
+    
+    selected_algo = st.selectbox(
+        "Select Algorithm to View Report:",
+        options=algo_options,
+        index=0,
+        key="selected_algo_dropdown"
+    )
+    
+    if selected_algo:
+        sel_res = results[selected_algo]
+        sel_ratios = sel_res["ratios"]
+        sel_waste = calculate_waste_percent(sel_ratios, saved_demand, saved_qty)
+        
+        sel_plates = 0
+        for r in sel_ratios:
+            sel_plates += sum(r.get("plates_count", []))
+            
+        # Display selected report details
+        st.markdown(f"#### 📊 Report for Algorithm {selected_algo}")
+        
+        c1, c2 = st.columns(2)
+        c1.metric("Waste Percentage", f"{sel_waste:.2f}%")
+        c2.metric("Total Plates", f"{sel_plates} Pcs")
+        
+        st.dataframe(pd.DataFrame(sel_ratios), use_container_width=True)
+        
+        # Build CSV/Excel downloads for the selected report
+        summary_df, detailed_df = build_full_summary(sel_ratios, saved_demand, saved_qty)
+        
+        # Export to Excel
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            summary_df.to_excel(writer, sheet_name="Summary Report", index=False)
+            detailed_df.to_excel(writer, sheet_name="Detailed Breakdowns", index=False)
+        excel_data = output.getvalue()
+        
+        # Download Button for the Selected Report
+        st.download_button(
+            label=f"📥 Download {selected_algo} Excel Report",
+            data=excel_data,
+            file_name=f"{selected_algo}_report_{datetime.now().strftime('%d-%m-%Y')}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
+            key=f"download_btn_{selected_algo}"
+        )
 
 # ================================================================
 # FOOTER
