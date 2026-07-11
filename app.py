@@ -1302,15 +1302,21 @@ if 'results' in locals() and results:
     st.markdown("---")
     st.markdown("## 📊 View Any Algorithm Report")
     
-    # Algorithm selector
-    selected_algo = st.selectbox(
-        "Select an algorithm to view its detailed report:",
-        options=list(results.keys()),
-        index=0,
-        key="algo_selector"
-    )
+    col1, col2 = st.columns([3, 1])
     
-    if selected_algo:
+    with col1:
+        selected_algo = st.selectbox(
+            "Select an algorithm to view its detailed report:",
+            options=list(results.keys()),
+            index=0,
+            key="algo_selector",
+            label_visibility="collapsed"
+        )
+    
+    with col2:
+        view_clicked = st.button("👁️ VIEW", key="view_algo_btn", use_container_width=True)
+    
+    if view_clicked and selected_algo:
         selected_plates = results[selected_algo]
         selected_waste = calculate_waste_percent(selected_plates, demand)
         
@@ -1443,6 +1449,8 @@ if 'results' in locals() and results:
                 )
             else:
                 st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
+    elif view_clicked and not selected_algo:
+        st.warning("⚠️ Please select an algorithm first.")
 
 # ================================================================
 # FOOTER
