@@ -1282,7 +1282,7 @@ if generate_clicked:
                         st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
 
 
-       # ============= ALGORITHM COMPARISON =============
+        # ============= ALGORITHM COMPARISON =============
         st.markdown("---")
         st.markdown("## 📊 Algorithm Comparison (Sorted by Waste %)")
         
@@ -1292,7 +1292,7 @@ if generate_clicked:
             axis=1
         ).format({"Waste %": "{:.2f}%"})
         
-        st.dataframe(styled_df, use_container_width=True, height=600)
+        st.dataframe(styled_df, use_container_width=True, height=400)
 
         # ============= VIEW ANY ALGORITHM REPORT =============
         st.markdown("---")
