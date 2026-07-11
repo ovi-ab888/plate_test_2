@@ -1238,12 +1238,12 @@ if st.session_state.has_run:
         plate_rows.append({
             "SL": idx, "Plate ID": p.get("name", f"Plate {idx}"),
             "Sheets": p.get("sheets", 0), "Total UPS": total_ups,
-            "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
+
         })
         total_sheets_sum += p.get("sheets", 0)
         total_ups_sum += total_ups
         
-    plate_rows.append({"SL": "📊", "Plate ID": "**TOTAL**", "Sheets": total_sheets_sum, "Total UPS": total_ups_sum, "Layout": ""})
+    plate_rows.append({"SL": "📊", "Plate ID": "**TOTAL**", "Sheets": total_sheets_sum, "Total UPS": total_ups_sum})
     st.dataframe(pd.DataFrame(plate_rows), use_container_width=True)
     
     # Best Report Downloads
