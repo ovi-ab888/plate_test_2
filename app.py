@@ -1301,6 +1301,9 @@ if generate_clicked:
         if 'results' in st.session_state and st.session_state['results']:
             algo_list = list(st.session_state['results'].keys())
             
+            # Sort alphabetically for better UX
+            algo_list.sort()
+            
             default_index = 0
             if st.session_state.get('best_algo') in algo_list:
                 default_index = algo_list.index(st.session_state['best_algo'])
@@ -1316,7 +1319,7 @@ if generate_clicked:
                 )
 
             with col2:
-                st.markdown("<br>", unsafe_allow_html=True)  # Spacing for alignment
+                st.markdown("<br>", unsafe_allow_html=True)
                 view_button = st.button("👁️ VIEW", use_container_width=True, type="primary")
 
             if view_button:
