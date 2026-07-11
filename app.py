@@ -1342,7 +1342,7 @@ if st.session_state.has_run:
             })
             sel_sheets_sum += p.get("sheets", 0)
             sel_ups_sum += t_ups
-        sel_plate_rows.append({"SL": "📊", "Plate ID": "**TOTAL**", "Sheets": sel_sheets_sum, "Total UPS": sel_ups_sum, "Layout": ""})
+        sel_plate_rows.append({"SL": "📊", "Plate ID": "**TOTAL**", "Sheets": sel_sheets_sum, "Total UPS": sel_ups_sum})
         st.dataframe(pd.DataFrame(sel_plate_rows), use_container_width=True)
         
         # Downloads for Selected Algorithm
