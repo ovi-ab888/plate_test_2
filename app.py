@@ -179,346 +179,50 @@ if not check_password():
     st.stop()
 
 # ================================================================
-# MODERN CSS FOR MAIN APP (Light + Dark Mode Compatible)
+# LOAD CUSTOM CSS
 # ================================================================
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    * { font-family: 'Inter', sans-serif; }
-    
-    /* ===== DARK MODE (ডিফল্ট) ===== */
-    .stApp {
-        background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%);
-    }
-    
-    /* Dark Mode Text Colors */
-    .stApp, .stApp p, .stApp div, .stApp span, .stApp label {
-        color: rgba(255,255,255,0.9) !important;
-    }
-    
-    /* Dark Mode Cards */
-    .main-header {
-        background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding: 2rem 2rem;
-        margin-bottom: 2rem;
-        text-align: center;
-        border-radius: 0;
-    }
-    .main-header h1 {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0;
-    }
-    .main-header p { color: rgba(255,255,255,0.7) !important; margin-top: 0.5rem; }
-    
-    .card {
-        background: rgba(255,255,255,0.05);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        border: 1px solid rgba(255,255,255,0.1);
-        transition: all 0.3s ease;
-    }
-    .card:hover { border-color: rgba(102,126,234,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-    .card-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        border-bottom: 2px solid #667eea;
-        display: inline-block;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-    }
-    
-    /* Dark Mode Inputs */
-    .stNumberInput input, .stTextInput input {
-        background: rgba(255,255,255,0.08) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-        border-radius: 5px !important;
-        color: white !important;
-        padding: 0.5rem 1rem !important;
-    }
-    .stNumberInput input:focus, .stTextInput input:focus {
-        border-color: #667eea !important;
-        box-shadow: 0 0 0 2px rgba(102,126,234,0.2) !important;
-        background: rgba(255,255,255,0.12) !important;
-    }
-    
-    /* Dark Mode Select/Radio */
-    .stSelectbox label, .stNumberInput label, .stTextInput label, .stRadio label {
-        color: rgba(255,255,255,0.9) !important;
-    }
-    .stRadio div[role="radiogroup"] {
-        color: rgba(255,255,255,0.9) !important;
-    }
-    .stRadio div[role="radiogroup"] label {
-        color: rgba(255,255,255,0.9) !important;
-    }
-    
-    /* Dark Mode Sidebar */
-    .css-1d391kg {
-        background: rgba(255,255,255,0.05) !important;
-        backdrop-filter: blur(10px) !important;
-        border-right: 1px solid rgba(255,255,255,0.1) !important;
-    }
-    .css-1d391kg .stMarkdown, .css-1d391kg .stMarkdown p {
-        color: rgba(255,255,255,0.9) !important;
-    }
-    
-    /* Dark Mode Dataframe */
-    .stDataFrame { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 0.5rem; }
-    .stDataFrame table { color: rgba(255,255,255,0.9) !important; }
-    .stDataFrame thead tr th { background: rgba(102,126,234,0.2) !important; color: rgba(255,255,255,0.9) !important; }
-    .stDataFrame tbody tr td { color: rgba(255,255,255,0.9) !important; }
-    
-    /* Dark Mode Alert */
-    .stAlert { background: rgba(255,255,255,0.05) !important; }
-    .stAlert p, .stAlert div { color: rgba(255,255,255,0.9) !important; }
-    
-    /* Dark Mode Expander */
-    .stExpander { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; }
-    .stExpander summary { color: rgba(255,255,255,0.9) !important; }
-    
-    /* Dark Mode Tag */
-    .tag-display {
-        background: linear-gradient(135deg, rgba(102,126,234,0.2) 0%, rgba(118,75,162,0.2) 100%);
-        padding: 10px;
-        border-radius: 12px;
-        border: 1px solid rgba(102,126,234,0.3);
-        color: #667eea;
-        font-weight: 600;
-        text-align: center;
-        font-size: 0.9rem;
-    }
-    
-    /* Dark Mode Metric */
-    .metric-card {
-        background: linear-gradient(135deg, rgba(102,126,234,0.2) 0%, rgba(118,75,162,0.2) 100%);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
-        padding: 1rem;
-        color: white;
-        text-align: center;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-    .metric-value {
-        font-size: 2rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    .metric-label { font-size: 0.85rem; color: rgba(255,255,255,0.7) !important; margin-top: 0.5rem; }
-    
-    /* Dark Mode Best Algo */
-    .best-algo {
-        background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
-        border-radius: 20px;
-        padding: 1.5rem;
-        color: white;
-        text-align: center;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0,176,155,0.3);
-        margin-bottom: 2rem;
-    }
-    .best-algo .metric-value { -webkit-text-fill-color: white; font-size: 1.5rem; }
-    .best-algo .metric-label { color: rgba(255,255,255,0.9) !important; }
-    
-    /* Dark Mode Button */
-    .stButton > button, .stDownloadButton button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        color: white !important;
-        border: none !important;
-        padding: 0.75rem 2rem !important;
-        font-weight: 600 !important;
-        border-radius: 12px !important;
-        width: 100% !important;
-        transition: all 0.3s ease !important;
-        font-size: 1rem !important;
-    }
-    .stButton > button:hover, .stDownloadButton button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 10px 20px rgba(102,126,234,0.4) !important;
-    }
-    
-    /* Dark Mode Warning/Info */
-    .warning { background: rgba(255,193,7,0.1) !important; padding: 12px; border-radius: 12px; border-left: 4px solid #ffc107 !important; color: #ffc107 !important; margin: 1rem 0; }
-    .info { background: rgba(23,162,184,0.1) !important; padding: 12px; border-radius: 12px; border-left: 4px solid #17a2b8 !important; color: #17a2b8 !important; }
-    
-    /* Dark Mode Scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; }
-    
-    /* Dark Mode Success/Info/Warning/Error */
-    .stSuccess, .stInfo, .stWarning, .stError {
-        background: rgba(255,255,255,0.05) !important;
-    }
-    .stSuccess p, .stInfo p, .stWarning p, .stError p {
-        color: rgba(255,255,255,0.9) !important;
-    }
-    
-    /* Dark Mode Column Headers in Manual Input */
-    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
-        color: rgba(255,255,255,0.9) !important;
-    }
-    .stMarkdown strong, .stMarkdown b {
-        color: rgba(255,255,255,0.9) !important;
-    }
-    
-    /* Footer Dark Mode */
-    .footer-text { color: rgba(255,255,255,0.6) !important; }
-    .footer-border { border-top: 2px solid rgba(102,126,234,0.3) !important; background: rgba(255,255,255,0.02) !important; }
-    
-    /* ===== LIGHT MODE ===== */
-    @media (prefers-color-scheme: light) {
-        .stApp {
-            background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%);
-        }
-        
-        .stApp, .stApp p, .stApp div, .stApp span, .stApp label,
-        .stMarkdown, .stMarkdown p, .stMarkdown div, .stMarkdown span,
-        .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4,
-        .stMarkdown strong, .stMarkdown b {
-            color: #1a1a3e !important;
-        }
-        
-        .main-header {
-            background: rgba(255,255,255,0.9) !important;
-            border-bottom: 1px solid rgba(0,0,0,0.1) !important;
-        }
-        .main-header p { color: rgba(0,0,0,0.7) !important; }
-        .main-header h1 {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .card {
-            background: rgba(255,255,255,0.95) !important;
-            border: 1px solid rgba(0,0,0,0.08) !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
-        }
-        .card:hover { border-color: rgba(102,126,234,0.5) !important; }
-        .card-title {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            border-bottom: 2px solid #667eea;
-        }
-        
-        .stNumberInput input, .stTextInput input {
-            background: white !important;
-            border: 1px solid rgba(0,0,0,0.2) !important;
-            color: #1a1a3e !important;
-        }
-        .stNumberInput input:focus, .stTextInput input:focus {
-            border-color: #667eea !important;
-            box-shadow: 0 0 0 2px rgba(102,126,234,0.2) !important;
-            background: white !important;
-        }
-        
-        .stSelectbox label, .stNumberInput label, .stTextInput label, .stRadio label {
-            color: #1a1a3e !important;
-        }
-        .stRadio div[role="radiogroup"] {
-            color: #1a1a3e !important;
-        }
-        .stRadio div[role="radiogroup"] label {
-            color: #1a1a3e !important;
-        }
-        
-        /* Light Mode Sidebar */
-        .css-1d391kg {
-            background: rgba(255,255,255,0.95) !important;
-            border-right: 1px solid rgba(0,0,0,0.08) !important;
-        }
-        .css-1d391kg .stMarkdown, .css-1d391kg .stMarkdown p {
-            color: #1a1a3e !important;
-        }
-        
-        .stDataFrame { background: white !important; }
-        .stDataFrame table { color: #1a1a3e !important; }
-        .stDataFrame thead tr th { background: rgba(102,126,234,0.1) !important; color: #1a1a3e !important; }
-        .stDataFrame tbody tr td { color: #1a1a3e !important; }
-        
-        .stAlert { background: white !important; }
-        .stAlert p, .stAlert div { color: #1a1a3e !important; }
-        
-        .stExpander { background: white !important; border: 1px solid rgba(0,0,0,0.08) !important; }
-        .stExpander summary { color: #1a1a3e !important; }
-        
-        .tag-display {
-            background: rgba(102,126,234,0.08) !important;
-            border: 1px solid rgba(102,126,234,0.3) !important;
-            color: #4a3f8a !important;
-        }
-        
-        .metric-card {
-            background: white !important;
-            border: 1px solid rgba(0,0,0,0.08) !important;
-            color: #1a1a3e !important;
-        }
-        .metric-label { color: rgba(0,0,0,0.7) !important; }
-        
-        .best-algo {
-            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
-            color: white !important;
-        }
-        .best-algo .metric-value { -webkit-text-fill-color: white !important; }
-        .best-algo .metric-label { color: rgba(255,255,255,0.9) !important; }
-        
-        .stButton > button, .stDownloadButton button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            color: white !important;
-        }
-        
-        .warning { background: rgba(255,193,7,0.15) !important; color: #856404 !important; border-left: 4px solid #ffc107 !important; }
-        .info { background: rgba(23,162,184,0.15) !important; color: #0c5460 !important; border-left: 4px solid #17a2b8 !important; }
-        
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05) !important; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; }
-        
-        .stSuccess { background: #d4edda !important; }
-        .stSuccess p { color: #155724 !important; }
-        .stInfo { background: #d1ecf1 !important; }
-        .stInfo p { color: #0c5460 !important; }
-        .stWarning { background: #fff3cd !important; }
-        .stWarning p { color: #856404 !important; }
-        .stError { background: #f8d7da !important; }
-        .stError p { color: #721c24 !important; }
-        
-        .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
-            color: #1a1a3e !important;
-        }
-        .stMarkdown strong, .stMarkdown b {
-            color: #1a1a3e !important;
-        }
-        
-        .stTextInput input::placeholder {
-            color: #999 !important;
-        }
-        
-        .stSuccess, .element-container div[data-testid="stAlert"] {
-            background: #d4edda !important;
-        }
-        .stSuccess p, .element-container div[data-testid="stAlert"] p {
-            color: #155724 !important;
-        }
-        
-        .footer-text { color: rgba(0,0,0,0.6) !important; }
-        .footer-border { border-top: 2px solid rgba(102,126,234,0.3) !important; background: rgba(255,255,255,0.5) !important; }
-    }
-</style>
-""", unsafe_allow_html=True)
+def load_css():
+    try:
+        with open("static/css/style.css", "r") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    except FileNotFoundError:
+        # Fallback CSS if file not found
+        st.markdown("""
+        <style>
+            .main-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 2rem;
+                border-radius: 20px;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            .main-header h1 {
+                color: white;
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin: 0;
+            }
+            .main-header p {
+                color: rgba(255,255,255,0.9);
+                margin: 0.5rem 0;
+            }
+            .best-algo {
+                background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+                padding: 1.5rem;
+                border-radius: 20px;
+                text-align: center;
+                color: white;
+                margin: 1rem 0;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+
+# ================== APP START ==================
+if not check_password():
+    st.stop()
+
+# Load CSS
+load_css()
 
 # ================================================================
 # SIDEBAR - শুধু Input Method
