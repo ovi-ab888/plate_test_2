@@ -21,38 +21,34 @@ from algorithms import ALGORITHM_REGISTRY, get_algorithm
 from algorithms.v1_helpers import calculate_waste_percent, build_full_summary
 
 # ================================================================
-# PASSWORD AUTHENTICATION (MULTIPLE PASSWORDS SUPPORT)
+# STREAMLIT PAGE CONFIGURATION
+# ================================================================
+st.set_page_config(
+    page_title="Plate Ratio System - Complete Edition",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# ================================================================
+# PASSWORD AUTHENTICATION
 # ================================================================
 def check_password():
-    expected_passwords = None
+    expected = None
     try:
-        # It can be a list of passwords in secrets.toml: app_passwords = ["pass1", "pass2"]
-        expected_passwords = st.secrets.get("app_passwords", None)
-        if expected_passwords is None:
-            # Fallback to single password secret if app_passwords isn't found
-            single_pass = st.secrets.get("app_password", None)
-            if single_pass:
-                expected_passwords = [single_pass]
+        expected = st.secrets.get("app_password", None)
     except Exception:
         pass
     
-    # Fallback to Environment Variable
-    if expected_passwords is None:
-        env_pass = os.environ.get("PEPCO_APP_PASSWORD")
-        if env_pass:
-            expected_passwords = [env_pass]
+    if expected is None:
+        expected = os.environ.get("PEPCO_APP_PASSWORD")
     
-    if expected_passwords is None:
-        st.error("App passwords not configured. Please set 'app_passwords' in secrets or PEPCO_APP_PASSWORD environment variable.")
+    if expected is None:
+        st.error("App password not configured.")
         return False
 
-    # Ensure it's a list or set for membership testing
-    if isinstance(expected_passwords, str):
-        expected_passwords = [expected_passwords]
-
     def _password_entered():
-        entered_pass = st.session_state.get("password", "")
-        if entered_pass in expected_passwords:
+        if st.session_state.get("password") == expected:
             st.session_state["password_correct"] = True
             try:
                 del st.session_state["password"]
@@ -60,6 +56,7 @@ def check_password():
                 pass
         else:
             st.session_state["password_correct"] = False
+            st.session_state["wrong_password"] = True
 
     if st.session_state.get("password_correct", None) is True:
         return True
@@ -160,7 +157,7 @@ def check_password():
         )
 
     if st.session_state.get("password_correct") is False:
-        st.error("❌ Your password is incorrect. Please contact Mr. Ovi")
+        st.error("❌ Incorrect password. Please contact Mr. Ovi.")
 
     return False
 
@@ -1283,193 +1280,6 @@ if generate_clicked:
                         )
                     else:
                         st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
-
-
-        # ============= ALGORITHM COMPARISON =============
-        st.markdown("---")
-        st.markdown("## 📊 Algorithm Comparison (Sorted by Waste %)")
-        
-        styled_df = comparison_df.style.apply(
-            lambda row: ['background-color: #2e7d32; color: white'] * len(row)
-            if row["Algorithm"] == best_algo else [''] * len(row),
-            axis=1
-        ).format({"Waste %": "{:.2f}%"})
-        
-        st.dataframe(styled_df, use_container_width=True, height=400)
-
-# ================================================================
-# VIEW ANY ALGORITHM REPORT - Best Algorithm Report এর পর
-# ================================================================
-# Check if results exists and has data
-if 'results' in locals() and results:
-    st.markdown("---")
-    st.markdown("## 📊 View Any Algorithm Report")
-    
-    # Initialize session state for view
-    if 'view_selected_algo' not in st.session_state:
-        st.session_state.view_selected_algo = list(results.keys())[0] if results else None
-    if 'view_clicked' not in st.session_state:
-        st.session_state.view_clicked = False
-    
-    col1, col2 = st.columns([3, 1])
-    
-    with col1:
-        selected_algo = st.selectbox(
-            "Select an algorithm to view its detailed report:",
-            options=list(results.keys()),
-            index=0,
-            key="algo_selector",
-            label_visibility="collapsed"
-        )
-        # Store selected algorithm in session state
-        st.session_state.view_selected_algo = selected_algo
-    
-    with col2:
-        view_clicked = st.button("👁️ VIEW", key="view_algo_btn", use_container_width=True)
-        if view_clicked:
-            st.session_state.view_clicked = True
-    
-    # Show report if VIEW clicked OR if session state has view_clicked True
-    if st.session_state.view_clicked and st.session_state.view_selected_algo:
-        selected_algo = st.session_state.view_selected_algo
-        selected_plates = results[selected_algo]
-        selected_waste = calculate_waste_percent(selected_plates, demand)
-        
-        # Show selected algorithm info
-        st.markdown(f"""
-        <div style="background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%); 
-                    border-radius: 16px; padding: 1rem; margin-bottom: 1rem; 
-                    border: 1px solid rgba(102,126,234,0.3);">
-            <p style="margin: 0; font-size: 1.1rem; font-weight: 600; color: #667eea;">
-                📊 {selected_algo}
-            </p>
-            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: rgba(255,255,255,0.7);">
-                Waste: <strong style="color: #00b09b;">{selected_waste}%</strong> | 
-                Plates: <strong>{len(selected_plates)}</strong> | 
-                Sheets: <strong>{sum(p.get('sheets', 0) for p in selected_plates)}</strong>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Validate selected plates capacity
-        for plate in selected_plates:
-            layout = plate["layout"]
-            total_ups = sum(layout.values())
-            
-            if total_ups != capacity:
-                while sum(layout.values()) > capacity:
-                    max_tag = max(layout, key=layout.get)
-                    if layout[max_tag] > 1:
-                        layout[max_tag] -= 1
-                    else:
-                        break
-                
-                while sum(layout.values()) < capacity:
-                    best_tag = max(demand.keys(), key=lambda t: demand.get(t, 0) / (layout.get(t, 1) + 1))
-                    layout[best_tag] = layout.get(best_tag, 0) + 1
-                
-                plate["layout"] = layout
-        
-        # Summary for selected algorithm
-        st.markdown("### 📋 Report Summary")
-        selected_summary_df = build_full_summary(selected_plates, demand, original_qty)
-        
-        # Ensure Total row exists
-        if not selected_summary_df.empty:
-            if selected_summary_df.iloc[-1]["Tag"] != "TOTAL":
-                total_row = {
-                    "SL": "📊",
-                    "Tag": "TOTAL",
-                    "Original QTY": selected_summary_df["Original QTY"].sum(),
-                    "Produced (+Add-on)": selected_summary_df["Produced (+Add-on)"].sum(),
-                }
-                
-                for col in selected_summary_df.columns:
-                    if col.startswith("Plate "):
-                        total_row[col] = selected_summary_df[col].sum()
-                
-                total_row["Total Produced QTY"] = selected_summary_df["Total Produced QTY"].sum()
-                total_excess = selected_summary_df["Excess"].sum()
-                total_row["Excess"] = total_excess
-                
-                total_produced_qty = total_row["Total Produced QTY"]
-                total_excess_percent = round((total_excess / total_produced_qty) * 100, 2) if total_produced_qty > 0 else 0
-                total_row["Excess %"] = f"{total_excess_percent}%"
-                
-                selected_summary_df = pd.concat([selected_summary_df, pd.DataFrame([total_row])], ignore_index=True)
-        
-        st.dataframe(selected_summary_df, use_container_width=True, height=300)
-        
-        # Plate Details for selected algorithm
-        st.markdown("### 🧾 Plate Details")
-        
-        selected_plate_rows = []
-        selected_total_sheets = 0
-        selected_total_ups = 0
-        
-        for idx, p in enumerate(selected_plates, 1):
-            total_ups = sum(p["layout"].values())
-            plate_name_str = p.get("name", f"Plate {idx}")
-            selected_plate_rows.append({
-                "SL": idx,
-                "Plate ID": plate_name_str,
-                "Sheets": p.get("sheets", 0),
-                "Total UPS": total_ups,
-                "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
-            })
-            selected_total_sheets += p.get("sheets", 0)
-            selected_total_ups += total_ups
-        
-        selected_plate_rows.append({
-            "SL": "📊",
-            "Plate ID": "**TOTAL**",
-            "Sheets": selected_total_sheets,
-            "Total UPS": selected_total_ups,
-            "Layout": ""
-        })
-        
-        selected_plate_df = pd.DataFrame(selected_plate_rows)
-        st.dataframe(selected_plate_df, use_container_width=True)
-        
-        # Download button for selected algorithm
-        st.markdown("### 📥 Download Selected Report")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            selected_excel = generate_excel_report(
-                selected_plates, demand, original_qty, 
-                selected_algo, selected_waste, job_number
-            )
-            st.download_button(
-                f"📊 Download {selected_algo} Excel",
-                selected_excel,
-                f"{selected_algo}_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True
-            )
-        
-        with col2:
-            selected_pdf = generate_pdf_report(
-                selected_plates, demand, original_qty, 
-                selected_algo, selected_waste, job_number
-            )
-            if selected_pdf:
-                st.download_button(
-                    f"📄 Download {selected_algo} PDF",
-                    selected_pdf,
-                    f"{selected_algo}_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
-                )
-            else:
-                st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
-    
-    # Reset view state if needed (optional: add a close button)
-    if st.session_state.view_clicked:
-        if st.button("❌ Close Report", key="close_view_btn"):
-            st.session_state.view_clicked = False
-            st.rerun()
 
 # ================================================================
 # FOOTER
