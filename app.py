@@ -1302,6 +1302,12 @@ if 'results' in locals() and results:
     st.markdown("---")
     st.markdown("## 📊 View Any Algorithm Report")
     
+    # Initialize session state for view
+    if 'view_selected_algo' not in st.session_state:
+        st.session_state.view_selected_algo = list(results.keys())[0] if results else None
+    if 'view_clicked' not in st.session_state:
+        st.session_state.view_clicked = False
+    
     col1, col2 = st.columns([3, 1])
     
     with col1:
@@ -1312,11 +1318,17 @@ if 'results' in locals() and results:
             key="algo_selector",
             label_visibility="collapsed"
         )
+        # Store selected algorithm in session state
+        st.session_state.view_selected_algo = selected_algo
     
     with col2:
         view_clicked = st.button("👁️ VIEW", key="view_algo_btn", use_container_width=True)
+        if view_clicked:
+            st.session_state.view_clicked = True
     
-    if view_clicked and selected_algo:
+    # Show report if VIEW clicked OR if session state has view_clicked True
+    if st.session_state.view_clicked and st.session_state.view_selected_algo:
+        selected_algo = st.session_state.view_selected_algo
         selected_plates = results[selected_algo]
         selected_waste = calculate_waste_percent(selected_plates, demand)
         
@@ -1449,8 +1461,12 @@ if 'results' in locals() and results:
                 )
             else:
                 st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
-    elif view_clicked and not selected_algo:
-        st.warning("⚠️ Please select an algorithm first.")
+    
+    # Reset view state if needed (optional: add a close button)
+    if st.session_state.view_clicked:
+        if st.button("❌ Close Report", key="close_view_btn"):
+            st.session_state.view_clicked = False
+            st.rerun()
 
 # ================================================================
 # FOOTER
