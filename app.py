@@ -1305,7 +1305,8 @@ if generate_clicked:
             if st.session_state.get('best_algo') in algo_list:
                 default_index = algo_list.index(st.session_state['best_algo'])
 
-            col1, col2 = st.columns([3, 1])
+            # Selectbox and View Button in same row
+            col1, col2 = st.columns([4, 1])
             with col1:
                 selected_algo = st.selectbox(
                     "Select Algorithm to View Report:",
@@ -1315,8 +1316,8 @@ if generate_clicked:
                 )
 
             with col2:
-                st.markdown("<br>", unsafe_allow_html=True)
-                view_button = st.button("📋 View Report", use_container_width=True, type="primary")
+                st.markdown("<br>", unsafe_allow_html=True)  # Spacing for alignment
+                view_button = st.button("👁️ VIEW", use_container_width=True, type="primary")
 
             if view_button:
                 selected_plates = st.session_state['results'].get(selected_algo)
