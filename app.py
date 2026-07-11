@@ -31,24 +31,38 @@ st.set_page_config(
 )
 
 # ================================================================
-# PASSWORD AUTHENTICATION
+# PASSWORD AUTHENTICATION (MULTIPLE PASSWORDS SUPPORT)
 # ================================================================
 def check_password():
-    expected = None
+    expected_passwords = None
     try:
-        expected = st.secrets.get("app_password", None)
+        # It can be a list of passwords in secrets.toml: app_passwords = ["pass1", "pass2"]
+        expected_passwords = st.secrets.get("app_passwords", None)
+        if expected_passwords is None:
+            # Fallback to single password secret if app_passwords isn't found
+            single_pass = st.secrets.get("app_password", None)
+            if single_pass:
+                expected_passwords = [single_pass]
     except Exception:
         pass
     
-    if expected is None:
-        expected = os.environ.get("PEPCO_APP_PASSWORD")
+    # Fallback to Environment Variable
+    if expected_passwords is None:
+        env_pass = os.environ.get("PEPCO_APP_PASSWORD")
+        if env_pass:
+            expected_passwords = [env_pass]
     
-    if expected is None:
-        st.error("App password not configured.")
+    if expected_passwords is None:
+        st.error("App passwords not configured. Please set 'app_passwords' in secrets or PEPCO_APP_PASSWORD environment variable.")
         return False
 
+    # Ensure it's a list or set for membership testing
+    if isinstance(expected_passwords, str):
+        expected_passwords = [expected_passwords]
+
     def _password_entered():
-        if st.session_state.get("password") == expected:
+        entered_pass = st.session_state.get("password", "")
+        if entered_pass in expected_passwords:
             st.session_state["password_correct"] = True
             try:
                 del st.session_state["password"]
@@ -56,7 +70,6 @@ def check_password():
                 pass
         else:
             st.session_state["password_correct"] = False
-            st.session_state["wrong_password"] = True
 
     if st.session_state.get("password_correct", None) is True:
         return True
@@ -157,10 +170,9 @@ def check_password():
         )
 
     if st.session_state.get("password_correct") is False:
-        st.error("❌ Incorrect password. Please contact Mr. Ovi.")
+        st.error("❌ Your password is incorrect. Please contact Mr. Ovi")
 
     return False
-
 # ================== APP START ==================
 if not check_password():
     st.stop()
