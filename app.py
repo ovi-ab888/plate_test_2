@@ -1246,7 +1246,7 @@ if generate_clicked:
                         "Plate ID": plate_name_str,
                         "Sheets": p.get("sheets", 0),
                         "Total UPS": total_ups,
-                        "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
+
                     })
                     total_sheets_sum += p.get("sheets", 0)
                     total_ups_sum += total_ups
@@ -1256,7 +1256,7 @@ if generate_clicked:
                     "Plate ID": "**TOTAL**",
                     "Sheets": total_sheets_sum,
                     "Total UPS": total_ups_sum,
-                    "Layout": ""
+
                 })
 
                 plate_details_df = pd.DataFrame(plate_rows)
