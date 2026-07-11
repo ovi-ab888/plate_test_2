@@ -20,7 +20,6 @@
     background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%);
 }
 
-/* Dark Mode Text Colors */
 .stApp,
 .stApp p,
 .stApp div,
@@ -127,6 +126,20 @@
 }
 
 /* ================================================================
+   SIDEBAR
+   ================================================================ */
+.css-1d391kg {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.css-1d391kg .stMarkdown,
+.css-1d391kg .stMarkdown p {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ================================================================
    DATAFRAME
    ================================================================ */
 .stDataFrame {
@@ -187,47 +200,6 @@
 }
 
 /* ================================================================
-   TAG DISPLAY
-   ================================================================ */
-.tag-display {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-    padding: 10px;
-    border-radius: 12px;
-    border: 1px solid rgba(102, 126, 234, 0.3);
-    color: #667eea;
-    font-weight: 600;
-    text-align: center;
-    font-size: 0.9rem;
-}
-
-/* ================================================================
-   METRIC CARDS
-   ================================================================ */
-.metric-card {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 1rem;
-    color: white;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.metric-value {
-    font-size: 2rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.metric-label {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7) !important;
-    margin-top: 0.5rem;
-}
-
-/* ================================================================
    BEST ALGORITHM BANNER
    ================================================================ */
 .best-algo {
@@ -273,26 +245,6 @@
 }
 
 /* ================================================================
-   WARNING / INFO
-   ================================================================ */
-.warning {
-    background: rgba(255, 193, 7, 0.1) !important;
-    padding: 12px;
-    border-radius: 12px;
-    border-left: 4px solid #ffc107 !important;
-    color: #ffc107 !important;
-    margin: 1rem 0;
-}
-
-.info {
-    background: rgba(23, 162, 184, 0.1) !important;
-    padding: 12px;
-    border-radius: 12px;
-    border-left: 4px solid #17a2b8 !important;
-    color: #17a2b8 !important;
-}
-
-/* ================================================================
    SCROLLBAR
    ================================================================ */
 ::-webkit-scrollbar {
@@ -311,23 +263,6 @@
 }
 
 /* ================================================================
-   HEADINGS
-   ================================================================ */
-.stMarkdown h1,
-.stMarkdown h2,
-.stMarkdown h3,
-.stMarkdown h4,
-.stMarkdown h5,
-.stMarkdown h6 {
-    color: rgba(255, 255, 255, 0.9) !important;
-}
-
-.stMarkdown strong,
-.stMarkdown b {
-    color: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* ================================================================
    FOOTER
    ================================================================ */
 .footer-text {
@@ -337,6 +272,43 @@
 .footer-border {
     border-top: 2px solid rgba(102, 126, 234, 0.3) !important;
     background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* ================================================================
+   PASSWORD PAGE
+   ================================================================ */
+.password-container {
+    max-width: 460px;
+    margin: 40px auto 8px auto;
+    padding: 2.8rem 2rem 1.8rem 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 32px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+}
+
+.lock-icon {
+    font-size: 3rem;
+    margin: 1rem 0;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+#MainMenu,
+header,
+footer {
+    visibility: hidden;
 }
 
 /* ================================================================
@@ -426,6 +398,16 @@
         color: #1a1a3e !important;
     }
 
+    .css-1d391kg {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .css-1d391kg .stMarkdown,
+    .css-1d391kg .stMarkdown p {
+        color: #1a1a3e !important;
+    }
+
     .stDataFrame {
         background: white !important;
     }
@@ -461,22 +443,6 @@
         color: #1a1a3e !important;
     }
 
-    .tag-display {
-        background: rgba(102, 126, 234, 0.08) !important;
-        border: 1px solid rgba(102, 126, 234, 0.3) !important;
-        color: #4a3f8a !important;
-    }
-
-    .metric-card {
-        background: white !important;
-        border: 1px solid rgba(0, 0, 0, 0.08) !important;
-        color: #1a1a3e !important;
-    }
-
-    .metric-label {
-        color: rgba(0, 0, 0, 0.7) !important;
-    }
-
     .best-algo {
         background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
         color: white !important;
@@ -494,18 +460,6 @@
     .stDownloadButton button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         color: white !important;
-    }
-
-    .warning {
-        background: rgba(255, 193, 7, 0.15) !important;
-        color: #856404 !important;
-        border-left: 4px solid #ffc107 !important;
-    }
-
-    .info {
-        background: rgba(23, 162, 184, 0.15) !important;
-        color: #0c5460 !important;
-        border-left: 4px solid #17a2b8 !important;
     }
 
     ::-webkit-scrollbar-track {
@@ -566,16 +520,6 @@
         color: #999 !important;
     }
 
-    .stSuccess,
-    .element-container div[data-testid="stAlert"] {
-        background: #d4edda !important;
-    }
-
-    .stSuccess p,
-    .element-container div[data-testid="stAlert"] p {
-        color: #155724 !important;
-    }
-
     .footer-text {
         color: rgba(0, 0, 0, 0.6) !important;
     }
@@ -584,87 +528,6 @@
         border-top: 2px solid rgba(102, 126, 234, 0.3) !important;
         background: rgba(255, 255, 255, 0.5) !important;
     }
-}
-
-/* ================================================================
-   PASSWORD PAGE SPECIFIC STYLES
-   ================================================================ */
-.password-container {
-    max-width: 460px;
-    margin: 40px auto 8px auto;
-    padding: 2.8rem 2rem 1.8rem 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    border-radius: 32px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-}
-
-.password-container h2 {
-    color: white;
-    margin: 0;
-}
-
-.password-container p {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.lock-icon {
-    font-size: 3rem;
-    margin: 1rem 0;
-    animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-.password-input .stTextInput {
-    margin-top: -10px !important;
-}
-
-.password-input input {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 30px !important;
-    color: white !important;
-    text-align: center !important;
-    font-size: 1.1rem !important;
-    padding: 0.9rem 1.5rem !important;
-    letter-spacing: 3px;
-}
-
-/* Password page gradient background */
-.password-bg {
-    background: linear-gradient(-45deg, #0f0c29, #1a1a3e, #24243e, #1a1a3e);
-    background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
-}
-
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-/* Hide Streamlit default elements */
-#MainMenu,
-header,
-footer {
-    visibility: hidden;
 }
 
 /* ================================================================
@@ -689,64 +552,5 @@ footer {
 
     .card {
         padding: 1rem;
-    }
-
-    .metric-value {
-        font-size: 1.5rem;
-    }
-
-    .password-container {
-        padding: 2rem 1rem 1.5rem 1rem;
-        margin: 20px 10px;
-    }
-}
-
-/* ================================================================
-   PRINT STYLES
-   ================================================================ */
-@media print {
-    .stButton,
-    .stDownloadButton,
-    .stSidebar {
-        display: none !important;
-    }
-
-    .main-header {
-        background: white !important;
-        border: 1px solid #ddd !important;
-    }
-
-    .main-header h1 {
-        -webkit-text-fill-color: #333 !important;
-        color: #333 !important;
-    }
-
-    .best-algo {
-        background: #f0f0f0 !important;
-        color: #333 !important;
-        box-shadow: none !important;
-    }
-
-    .best-algo .metric-value {
-        -webkit-text-fill-color: #333 !important;
-        color: #333 !important;
-    }
-
-    .stDataFrame {
-        background: white !important;
-        border: 1px solid #ddd !important;
-    }
-
-    .stDataFrame table {
-        color: #333 !important;
-    }
-
-    .stDataFrame thead tr th {
-        background: #f0f0f0 !important;
-        color: #333 !important;
-    }
-
-    .stDataFrame tbody tr td {
-        color: #333 !important;
     }
 }
