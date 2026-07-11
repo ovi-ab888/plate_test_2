@@ -1358,11 +1358,17 @@ if generate_clicked:
                     st.dataframe(plate_df, use_container_width=True)
 
                     waste = calculate_waste_percent(selected_plates, st.session_state['demand'])
-                    st.success(f"**Waste: {waste}%** | Plates: {len(selected_plates)} | Total Sheets: {total_sheets}")
+                    
+                    # Show waste info with color
+                    if waste == 0:
+                        st.success(f"✅ **Waste: {waste}%** | Plates: {len(selected_plates)} | Total Sheets: {total_sheets}")
+                    elif waste <= 5:
+                        st.info(f"ℹ️ **Waste: {waste}%** | Plates: {len(selected_plates)} | Total Sheets: {total_sheets}")
+                    else:
+                        st.warning(f"⚠️ **Waste: {waste}%** | Plates: {len(selected_plates)} | Total Sheets: {total_sheets}")
 
                 else:
                     st.error(f"❌ Report not found for {selected_algo}")
-
 
 # ================================================================
 # FOOTER
