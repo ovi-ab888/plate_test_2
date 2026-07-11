@@ -626,7 +626,7 @@ def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent
                 "Plate ID": p.get("name", f"Plate {idx}"),
                 "Sheets Required": p.get("sheets", 0),
                 "Total UPS": total_ups,
-                "Layout": ", ".join([f"{k}:{v}" for k, v in p["layout"].items()])
+
             })
             total_sheets_sum += p.get("sheets", 0)
             total_ups_sum += total_ups
