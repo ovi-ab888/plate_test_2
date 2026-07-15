@@ -31,9 +31,7 @@ except ImportError:
     def generate_pdf_report(*args, **kwargs):
         return None
 
-# ================================================================
-# IMPORT EXCEL GENERATOR (from utils)
-# ================================================================
+# app.py - শুরুতে ইমপোর্ট
 try:
     from utils.excel_generator import generate_excel_report
     EXCEL_AVAILABLE = True
@@ -1045,16 +1043,24 @@ if generate_clicked:
                 
                 with col1:
                     excel_buffer = generate_excel_report(best_plates, demand, original_qty, best_algo, best_waste, job_number)
-                    st.download_button(
-                        "📊 Download Excel Report",
-                        excel_buffer,
-                        f"Plate_Ratio_Report_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        use_container_width=True
-                    )
+                    
+                    if excel_buffer is not None:
+                        st.download_button(
+                            "📊 Download Excel Report",
+                            excel_buffer,
+                            f"Plate_Ratio_Report_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            use_container_width=True
+                        )
+                    else:
+                        st.error("❌ Excel report generation failed. Please check the data.")
                 
                 with col2:
-                    # ✅ PDF with Style, Color, Size
+                    # Get style/color/size from session state
+                    styles_dict = st.session_state.get('item_styles', {})
+                    colors_dict = st.session_state.get('item_colors', {})
+                    sizes_dict = st.session_state.get('item_sizes', {})
+                    
                     pdf_buffer = generate_pdf_report(
                         best_plates, 
                         demand, 
@@ -1067,7 +1073,7 @@ if generate_clicked:
                         sizes_dict
                     )
                     
-                    if pdf_buffer:
+                    if pdf_buffer is not None:
                         st.download_button(
                             "📄 Download PDF Report",
                             pdf_buffer,
