@@ -8,7 +8,7 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
         from reportlab.lib.pagesizes import A4, landscape
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.enums import TA_CENTER
+        from reportlab.lib.enums import TA_CENTER, TA_RIGHT
     except ImportError:
         return None
 
@@ -31,7 +31,7 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
         # Custom styles
         title_style = ParagraphStyle(
             'CustomTitle', parent=styles['Heading1'],
-            fontSize=14, alignment=TA_CENTER,
+            fontSize=14, alignment=TA_CENTER, 
             textColor=colors.HexColor('#667eea'),
             spaceAfter=4
         )
@@ -43,19 +43,19 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
         )
         subtitle_style = ParagraphStyle(
             'CustomSubtitle', parent=styles['Normal'],
-            fontSize=9, alignment=TA_CENTER,
+            fontSize=9, alignment=TA_CENTER, 
             textColor=colors.grey,
             spaceAfter=12
         )
         footer_style = ParagraphStyle(
             'Footer', parent=styles['Normal'],
-            fontSize=8, alignment=TA_CENTER,
+            fontSize=8, alignment=TA_CENTER, 
             textColor=colors.grey,
             spaceTop=12
         )
 
         story = []
-
+        
         # Header with Job Number
         story.append(Paragraph("📊 Plate Ratio System - Ratio Report", title_style))
         if job_number:
@@ -79,7 +79,7 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
         # Build data rows
         sl = 1
         for tag in demand.keys():
-            # Get style/color/size from session state or use defaults
+            # Get style/color/size from session state
             style = styles_dict.get(tag, "")
             color = colors_dict.get(tag, "")
             size = sizes_dict.get(tag, "")
@@ -92,7 +92,7 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
             if not size:
                 size = "-"
             
-            row = [str(sl), style, color, size,
+            row = [str(sl), style, color, size, 
                    str(original_qty.get(tag, 0)), str(demand[tag])]
             
             total_produced = 0
@@ -108,7 +108,7 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
             sl += 1
         
         # Total row
-        total_row = ["📊", "TOTAL", "", "",
+        total_row = ["📊", "TOTAL", "", "", 
                      str(sum(original_qty.values())), str(sum(demand.values()))]
         
         total_produced_sum = 0
@@ -131,30 +131,19 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
         
         # Style the table
         table_style = [
-            # Header
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 8),
+            ('FONTSIZE', (0, 0), (-1, 0), 7),
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-            
-            # Data rows
             ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -2), 7),
+            ('FONTSIZE', (0, 1), (-1, -2), 6),
             ('ALIGN', (0, 1), (-1, -2), 'CENTER'),
-            
-            # Total row
-            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#e8f0fe')),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f0f0')),
             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 8),
-            
-            # Grid
+            ('FONTSIZE', (0, -1), (-1, -1), 7),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            
-            # Padding
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
         ]
         
         # Apply alternating row colors
@@ -167,7 +156,7 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
         story.append(Spacer(1, 15))
         
         # ============= PLATE DETAILS TABLE =============
-        story.append(Paragraph("🧾 Plate Configuration Details",
+        story.append(Paragraph("🧾 Plate Configuration Details", 
                               ParagraphStyle('SubHeader', parent=styles['Heading2'],
                                            fontSize=11, alignment=TA_CENTER,
                                            textColor=colors.HexColor('#667eea'))))
@@ -176,9 +165,9 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
         plate_data = [["SL", "Plate ID", "Sheets", "Total UPS"]]
         for idx, p in enumerate(plates, 1):
             plate_data.append([
-                str(idx),
-                p["name"],
-                str(p["sheets"]),
+                str(idx), 
+                p["name"], 
+                str(p["sheets"]), 
                 str(sum(p["layout"].values()))
             ])
         
@@ -203,9 +192,9 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
             ('FONTSIZE', (0, 1), (-1, -1), 7),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#e8f0fe')),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f0f0')),
             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 8),
+            ('FONTSIZE', (0, -1), (-1, -1), 7),
         ]))
         
         story.append(plate_table)
