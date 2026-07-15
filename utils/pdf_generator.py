@@ -10,7 +10,7 @@ from datetime import datetime
 # ✅ ReportLab ইম্পোর্ট - সঠিকভাবে চেক করুন
 try:
     from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4, 
+    from reportlab.lib.pagesizes import A4, landscape
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.enums import TA_CENTER
@@ -42,7 +42,7 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
     try:
         buffer = BytesIO()
         doc = SimpleDocTemplate(
-            buffer, pagesize=A4,
+            buffer, pagesize=landscape(A4),
             rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20
         )
         styles = getSampleStyleSheet()
