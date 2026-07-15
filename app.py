@@ -26,11 +26,12 @@ from algorithms.v1_helpers import calculate_waste_percent, build_full_summary
 try:
     from utils.pdf_generator import generate_pdf_report
     PDF_AVAILABLE = True
-except ImportError:
+    print("✅ PDF Generator imported successfully from utils")
+except ImportError as e:
     PDF_AVAILABLE = False
+    print(f"❌ PDF Generator import failed: {e}")
     def generate_pdf_report(*args, **kwargs):
         return None
-
 # ================================================================
 # IMPORT EXCEL GENERATOR (from utils)
 # ================================================================
