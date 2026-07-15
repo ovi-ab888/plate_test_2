@@ -1,12 +1,12 @@
 # utils/pdf_generator.py
 
 """
-PDF Report Generator - Without Layout Column
+PDF Report Generator - With Style, Color, Size Columns
 """
 
 from io import BytesIO
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 try:
     from reportlab.lib import colors
@@ -25,8 +25,10 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
                         waste_percent: float, styles_dict: Dict[str, str] = None,
                         colors_dict: Dict[str, str] = None,
                         sizes_dict: Dict[str, str] = None,
-                        job_number: str = "") -> BytesIO:
-    """Generate professional PDF report with larger fonts"""
+                        job_number: str = "") -> Optional[BytesIO]:
+    """
+    Generate professional PDF report with Style, Color, Size columns
+    """
     
     if not REPORTLAB_AVAILABLE:
         return None
@@ -111,11 +113,11 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
         story.append(Spacer(1, 12))
         
         # ================================================================
-        # MAIN SUMMARY TABLE
+        # MAIN SUMMARY TABLE (With Style, Color, Size)
         # ================================================================
         
         # Build header with all columns
-        header_row = ["SL", "Tag", "Original", "With Add-on"]
+        header_row = ["SL", "Style", "Color", "Size", "Original", "With Add-on"]
         for p in plates:
             header_row.append(f"Plate {p['name']}")
         header_row.extend(["Total Prod.", "Excess", "Excess %"])
@@ -125,7 +127,20 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
         # Build data rows
         sl = 1
         for tag in demand.keys():
-            row = [str(sl), tag, 
+            # Get style/color/size from session state
+            style = styles_dict.get(tag, "")
+            color = colors_dict.get(tag, "")
+            size = sizes_dict.get(tag, "")
+            
+            # If empty, show "-"
+            if not style:
+                style = "-"
+            if not color:
+                color = "-"
+            if not size:
+                size = "-"
+            
+            row = [str(sl), style, color, size, 
                    str(original_qty.get(tag, 0)), str(demand[tag])]
             
             total_produced = 0
@@ -141,7 +156,7 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
             sl += 1
         
         # Total row
-        total_row = ["📊", "TOTAL", 
+        total_row = ["📊", "TOTAL", "", "", 
                      str(sum(original_qty.values())), str(sum(demand.values()))]
         
         total_produced_sum = 0
@@ -266,6 +281,62 @@ def generate_pdf_report(plates: List[Dict[str, Any]], demand: Dict[str, int],
         ]))
         
         story.append(plate_table)
+        story.append(Spacer(1, 18))
+        
+        # ================================================================
+        # SUMMARY STATISTICS
+        # ================================================================
+        story.append(Paragraph("📊 Summary Statistics", section_header_style))
+        story.append(Spacer(1, 10))
+        
+        stats_data = [
+            ["Metric", "Value"],
+            ["Total Items", str(len(demand))],
+            ["Total Plates", str(len(plates))],
+            ["Total Sheets", str(total_sheets)],
+            ["Total Original QTY", str(sum(original_qty.values()))],
+            ["Total Demand (with Add-on)", str(sum(demand.values()))],
+            ["Total Excess", str(total_excess_sum)],
+            ["Waste Percentage", f"{waste_percent}%"],
+            ["Job Number", job_number if job_number else "N/A"],
+            ["Algorithm", algo_name],
+        ]
+        
+        stats_table = Table(stats_data, colWidths=[2.5*inch, 2.5*inch])
+        stats_table.setStyle(TableStyle([
+            # Header
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+            
+            # Data rows
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 11),
+            ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 1), (-1, -1), 'MIDDLE'),
+            
+            # Alternating row colors
+            ('BACKGROUND', (0, 1), (-1, 2), colors.HexColor('#f8f9fa')),
+            ('BACKGROUND', (0, 3), (-1, 4), colors.HexColor('#f8f9fa')),
+            ('BACKGROUND', (0, 5), (-1, 6), colors.HexColor('#f8f9fa')),
+            ('BACKGROUND', (0, 7), (-1, 8), colors.HexColor('#f8f9fa')),
+            ('BACKGROUND', (0, 9), (-1, 9), colors.HexColor('#f8f9fa')),
+            
+            # Grid
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 15),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 15),
+        ]))
+        
+        story.append(stats_table)
         story.append(Spacer(1, 18))
         
         # ================================================================
