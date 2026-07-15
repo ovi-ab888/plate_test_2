@@ -663,8 +663,8 @@ def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent
 # ================================================================
 # PDF REPORT GENERATOR
 # ================================================================
-def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, job_number=""):
-    """Generate PDF report"""
+def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, job_number="", styles_dict=None, colors_dict=None, sizes_dict=None):
+    """Generate PDF report with Style, Color, Size columns"""
     try:
         from reportlab.lib import colors
         from reportlab.lib.pagesizes import A4, landscape
@@ -673,6 +673,13 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         from reportlab.lib.enums import TA_CENTER
     except ImportError:
         return None
+    
+    if styles_dict is None:
+        styles_dict = {}
+    if colors_dict is None:
+        colors_dict = {}
+    if sizes_dict is None:
+        sizes_dict = {}
     
     try:
         buffer = BytesIO()
@@ -732,8 +739,8 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         ))
         story.append(Spacer(1, 12))
         
-        # Summary table
-        header_row = ["SL", "Tag", "Original", "With Add-on"]
+        # ============= SUMMARY TABLE WITH STYLE, COLOR, SIZE =============
+        header_row = ["SL", "Style", "Color", "Size", "Original", "With Add-on"]
         for p in plates:
             header_row.append(f"Plate {p['name']}")
         header_row.extend(["Total Prod.", "Excess", "Excess %"])
@@ -742,7 +749,21 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         
         sl = 1
         for tag in demand.keys():
-            row = [str(sl), tag, str(original_qty.get(tag, 0)), str(demand[tag])]
+            # Get style/color/size from session state
+            style = styles_dict.get(tag, "")
+            color = colors_dict.get(tag, "")
+            size = sizes_dict.get(tag, "")
+            
+            # If empty, show "-"
+            if not style:
+                style = "-"
+            if not color:
+                color = "-"
+            if not size:
+                size = "-"
+            
+            row = [str(sl), style, color, size,
+                   str(original_qty.get(tag, 0)), str(demand[tag])]
             
             total_produced = 0
             for p in plates:
@@ -757,7 +778,8 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
             sl += 1
         
         # Total row
-        total_row = ["📊", "TOTAL", str(sum(original_qty.values())), str(sum(demand.values()))]
+        total_row = ["📊", "TOTAL", "", "",
+                     str(sum(original_qty.values())), str(sum(demand.values()))]
         
         total_produced_sum = 0
         for p in plates:
@@ -803,7 +825,7 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         story.append(main_table)
         story.append(Spacer(1, 18))
         
-        # Plate details
+        # ============= PLATE DETAILS =============
         story.append(Paragraph("🧾 Plate Configuration Details", section_header_style))
         story.append(Spacer(1, 10))
         
@@ -854,8 +876,8 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         return buffer
     
     except Exception as e:
+        print(f"PDF Error: {e}")
         return None
-
 # ================================================================
 # MAIN CONTENT - Header
 # ================================================================
