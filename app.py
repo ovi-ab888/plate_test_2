@@ -21,6 +21,28 @@ from algorithms import ALGORITHM_REGISTRY, get_algorithm
 from algorithms.v1_helpers import calculate_waste_percent, build_full_summary
 
 # ================================================================
+# IMPORT PDF GENERATOR (from utils)
+# ================================================================
+try:
+    from utils.pdf_generator import generate_pdf_report
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
+    def generate_pdf_report(*args, **kwargs):
+        return None
+
+# ================================================================
+# IMPORT EXCEL GENERATOR (from utils)
+# ================================================================
+try:
+    from utils.excel_generator import generate_excel_report
+    EXCEL_AVAILABLE = True
+except ImportError:
+    EXCEL_AVAILABLE = False
+    def generate_excel_report(*args, **kwargs):
+        return None
+
+# ================================================================
 # STREAMLIT PAGE CONFIGURATION
 # ================================================================
 st.set_page_config(
@@ -602,77 +624,7 @@ def validate_plate_capacity(plates, capacity):
     
     return plates
 
-# ================================================================
-# EXCEL REPORT GENERATOR
-# ================================================================
-def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent, job_number=""):
-    """Generate Excel report"""
-    bio = BytesIO()
-    
-    with pd.ExcelWriter(bio, engine="openpyxl") as writer:
-        # Summary sheet
-        summary_df = build_full_summary(plates, demand, original_qty)
-        summary_df.to_excel(writer, sheet_name="Summary", index=False)
-        
-        # Plate details with total
-        plate_rows = []
-        total_sheets_sum = 0
-        total_ups_sum = 0
-        
-        for idx, p in enumerate(plates, 1):
-            total_ups = sum(p["layout"].values())
-            plate_rows.append({
-                "SL": idx,
-                "Plate ID": p.get("name", f"Plate {idx}"),
-                "Sheets Required": p.get("sheets", 0),
-                "Total UPS": total_ups,
 
-            })
-            total_sheets_sum += p.get("sheets", 0)
-            total_ups_sum += total_ups
-        
-        # Add total row
-        plate_rows.append({
-            "SL": "TOTAL",
-            "Plate ID": "",
-            "Sheets Required": total_sheets_sum,
-            "Total UPS": total_ups_sum,
-
-        })
-        
-        plate_df = pd.DataFrame(plate_rows)
-        plate_df.to_excel(writer, sheet_name="Plate Details", index=False)
-        
-        # Algorithm info
-        info_df = pd.DataFrame({
-            "Property": ["Algorithm", "Waste %", "Total Plates", "Total Sheets", "Job Number", "Generated On"],
-            "Value": [
-                algo_name,
-                waste_percent,
-                len(plates),
-                total_sheets_sum,
-                job_number if job_number else "N/A",
-                datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            ]
-        })
-        info_df.to_excel(writer, sheet_name="Info", index=False)
-    
-    bio.seek(0)
-    return bio
-
-# ================================================================
-# PDF REPORT GENERATOR
-# ================================================================
-# app.py - শুরুতে ইমপোর্ট যোগ করুন
-
-# PDF Generator ইমপোর্ট
-try:
-    from utils.pdf_generator import generate_pdf_report
-    PDF_AVAILABLE = True
-except ImportError:
-    PDF_AVAILABLE = False
-    def generate_pdf_report(*args, **kwargs):
-        return None
         
 # ================================================================
 # MAIN CONTENT - Header
