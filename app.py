@@ -26,7 +26,7 @@ from algorithms.v1_helpers import calculate_waste_percent, build_full_summary
 def load_css():
     """Load CSS from static/style.css file"""
     try:
-        with open("static/style.css", "r", encoding="utf-8") as f:
+        with open("static/css/style.css", "r", encoding="utf-8")
             css = f.read()
         return f"<style>{css}</style>"
     except FileNotFoundError:
