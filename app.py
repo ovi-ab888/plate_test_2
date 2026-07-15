@@ -31,7 +31,9 @@ except ImportError:
     def generate_pdf_report(*args, **kwargs):
         return None
 
-# app.py - শুরুতে ইমপোর্ট
+# ================================================================
+# IMPORT EXCEL GENERATOR (from utils)
+# ================================================================
 try:
     from utils.excel_generator import generate_excel_report
     EXCEL_AVAILABLE = True
@@ -39,7 +41,6 @@ except ImportError:
     EXCEL_AVAILABLE = False
     def generate_excel_report(*args, **kwargs):
         return None
-
 # ================================================================
 # STREAMLIT PAGE CONFIGURATION
 # ================================================================
