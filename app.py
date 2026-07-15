@@ -554,7 +554,7 @@ with st.sidebar:
     input_method = st.radio(
         "Select Input Method:",
         ["✏️ Manual Entry", "📂 Upload Excel"],
-        index=0,
+        index=1,
         label_visibility="collapsed"
     )
     
