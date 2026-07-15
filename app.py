@@ -20,18 +20,6 @@ from math import ceil
 from algorithms import ALGORITHM_REGISTRY, get_algorithm
 from algorithms.v1_helpers import calculate_waste_percent, build_full_summary
 
-# ================================================================
-# CSS LOADER
-# ================================================================
-def load_css():
-    """Load CSS from static/style.css file"""
-    try:
-         with open("static/css/style.css", "r", encoding="utf-8")
-            css = f.read()
-        return f"<style>{css}</style>"
-    except FileNotFoundError:
-        return ""
-
 
 # ================================================================
 # CSS LOADER
