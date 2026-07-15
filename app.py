@@ -34,17 +34,19 @@ def load_css():
 
 
 # ================================================================
-# IMPORT PDF GENERATOR (from utils)
+# APPLY CSS - static/style.css থেকে লোড করুন
 # ================================================================
-try:
-    from utils.pdf_generator import generate_pdf_report
-    PDF_AVAILABLE = True
-    print("✅ PDF Generator imported successfully from utils")
-except ImportError as e:
-    PDF_AVAILABLE = False
-    print(f"❌ PDF Generator import failed: {e}")
-    def generate_pdf_report(*args, **kwargs):
-        return None
+def load_css():
+    """Load CSS from static/style.css file"""
+    try:
+        with open("static/style.css", "r", encoding="utf-8") as f:
+            css = f.read()
+        return f"<style>{css}</style>"
+    except FileNotFoundError:
+        return ""
+
+# CSS প্রয়োগ করুন
+st.markdown(load_css(), unsafe_allow_html=True)
 # ================================================================
 # IMPORT EXCEL GENERATOR (from utils)
 # ================================================================
