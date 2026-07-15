@@ -1,7 +1,7 @@
 /* static/style.css */
 
 /* ================================================================
-   MODERN CSS FOR PLATE RATIO SYSTEM (Light + Dark Mode Compatible)
+   MODERN CSS FOR MAIN APP (Light + Dark Mode Compatible)
    ================================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -10,25 +10,9 @@
     font-family: 'Inter', sans-serif;
 }
 
-/* ================================================================
-   DARK MODE (ডিফল্ট)
-   ================================================================ */
-
-/* ✅ মূল ব্যাকগ্রাউন্ড - গ্রেডিয়েন্ট */
+/* ===== DARK MODE (ডিফল্ট) ===== */
 .stApp {
-    background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%) !important;
-}
-
-/* ✅ পুরো পেজের ব্যাকগ্রাউন্ড */
-.stApp > div {
-    background: transparent !important;
-}
-
-/* ✅ main block container */
-.block-container {
-    background: transparent !important;
-    padding: 0rem !important;
-    max-width: 90% !important;
+    background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%);
 }
 
 /* Dark Mode Text Colors */
@@ -40,17 +24,15 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   MAIN HEADER
-   ================================================================ */
+/* Dark Mode Cards */
 .main-header {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
     backdrop-filter: blur(10px);
-    padding: 2rem;
-    border-radius: 30px;
-    margin: 1rem 1rem 0rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem 2rem;
+    margin-bottom: 2rem;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
 }
 
 .main-header h1 {
@@ -67,17 +49,8 @@
     margin-top: 0.5rem;
 }
 
-.designer-name {
-    color: rgba(255, 255, 255, 0.6) !important;
-    font-size: 0.85rem !important;
-    margin-top: 0.5rem !important;
-}
-
-/* ================================================================
-   CARDS
-   ================================================================ */
 .card {
-    background: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 1.5rem;
@@ -103,29 +76,7 @@
     padding-bottom: 0.5rem;
 }
 
-/* ✅ Configuration Card */
-.config-card {
-    background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.config-card h3 {
-    margin: 0 0 1rem 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    border-bottom: 2px solid #667eea;
-    display: inline-block;
-    padding-bottom: 0.5rem;
-}
-
-/* ================================================================
-   DARK MODE INPUTS
-   ================================================================ */
+/* Dark Mode Inputs */
 .stNumberInput input,
 .stTextInput input {
     background: rgba(255, 255, 255, 0.08) !important;
@@ -142,9 +93,7 @@
     background: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* ================================================================
-   DARK MODE SELECT/RADIO
-   ================================================================ */
+/* Dark Mode Select/Radio */
 .stSelectbox label,
 .stNumberInput label,
 .stTextInput label,
@@ -160,25 +109,9 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   DARK MODE SIDEBAR
-   ================================================================ */
-.css-1d391kg {
-    background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.css-1d391kg .stMarkdown,
-.css-1d391kg .stMarkdown p {
-    color: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* ================================================================
-   DARK MODE DATAFRAME
-   ================================================================ */
+/* Dark Mode Dataframe */
 .stDataFrame {
-    background: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 16px;
     padding: 0.5rem;
 }
@@ -196,9 +129,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   DARK MODE ALERT
-   ================================================================ */
+/* Dark Mode Alert */
 .stAlert {
     background: rgba(255, 255, 255, 0.05) !important;
 }
@@ -208,9 +139,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   DARK MODE EXPANDER
-   ================================================================ */
+/* Dark Mode Expander */
 .stExpander {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -220,9 +149,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   DARK MODE TAG
-   ================================================================ */
+/* Dark Mode Tag */
 .tag-display {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
     padding: 10px;
@@ -234,9 +161,7 @@
     font-size: 0.9rem;
 }
 
-/* ================================================================
-   DARK MODE METRIC
-   ================================================================ */
+/* Dark Mode Metric */
 .metric-card {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
     backdrop-filter: blur(10px);
@@ -261,9 +186,7 @@
     margin-top: 0.5rem;
 }
 
-/* ================================================================
-   DARK MODE BEST ALGO
-   ================================================================ */
+/* Dark Mode Best Algo */
 .best-algo {
     background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
     border-radius: 20px;
@@ -284,9 +207,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   DARK MODE BUTTON
-   ================================================================ */
+/* Dark Mode Button */
 .stButton>button,
 .stDownloadButton button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
@@ -306,9 +227,7 @@
     box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4) !important;
 }
 
-/* ================================================================
-   DARK MODE WARNING/INFO
-   ================================================================ */
+/* Dark Mode Warning/Info */
 .warning {
     background: rgba(255, 193, 7, 0.1) !important;
     padding: 12px;
@@ -326,9 +245,7 @@
     color: #17a2b8 !important;
 }
 
-/* ================================================================
-   DARK MODE SCROLLBAR
-   ================================================================ */
+/* Dark Mode Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -344,9 +261,7 @@
     border-radius: 10px;
 }
 
-/* ================================================================
-   DARK MODE SUCCESS/INFO/WARNING/ERROR
-   ================================================================ */
+/* Dark Mode Success/Info/Warning/Error */
 .stSuccess,
 .stInfo,
 .stWarning,
@@ -361,9 +276,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   DARK MODE HEADERS
-   ================================================================ */
+/* Dark Mode Column Headers in Manual Input */
 .stMarkdown h1,
 .stMarkdown h2,
 .stMarkdown h3,
@@ -378,9 +291,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   FOOTER DARK MODE
-   ================================================================ */
+/* Footer Dark Mode */
 .footer-text {
     color: rgba(255, 255, 255, 0.6) !important;
 }
@@ -388,22 +299,16 @@
 .footer-border {
     border-top: 2px solid rgba(102, 126, 234, 0.3) !important;
     background: rgba(255, 255, 255, 0.02) !important;
-    border-radius: 20px;
-    text-align: center;
-    padding: 2rem;
-    margin-top: 3rem;
 }
 
-/* ================================================================
-   LIGHT MODE
-   ================================================================ */
+
+/* ===== LIGHT MODE ===== */
 @media (prefers-color-scheme: light) {
-    
-    /* ✅ Light Mode Background */
     .stApp {
-        background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%) !important;
+        background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%);
     }
 
+    /* Light Mode Text Colors - সব টেক্সট গাঢ় করা */
     .stApp,
     .stApp p,
     .stApp div,
@@ -422,9 +327,10 @@
         color: #1a1a3e !important;
     }
 
+    /* Light Mode Header */
     .main-header {
         background: rgba(255, 255, 255, 0.9) !important;
-        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
     }
 
     .main-header p {
@@ -437,10 +343,7 @@
         -webkit-text-fill-color: transparent;
     }
 
-    .designer-name {
-        color: rgba(0, 0, 0, 0.6) !important;
-    }
-
+    /* Light Mode Cards */
     .card {
         background: rgba(255, 255, 255, 0.95) !important;
         border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -458,11 +361,7 @@
         border-bottom: 2px solid #667eea;
     }
 
-    .config-card {
-        background: rgba(255, 255, 255, 0.95) !important;
-        border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    }
-
+    /* Light Mode Inputs */
     .stNumberInput input,
     .stTextInput input {
         background: white !important;
@@ -477,6 +376,7 @@
         background: white !important;
     }
 
+    /* Light Mode Labels */
     .stSelectbox label,
     .stNumberInput label,
     .stTextInput label,
@@ -492,16 +392,7 @@
         color: #1a1a3e !important;
     }
 
-    .css-1d391kg {
-        background: rgba(255, 255, 255, 0.95) !important;
-        border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
-    }
-
-    .css-1d391kg .stMarkdown,
-    .css-1d391kg .stMarkdown p {
-        color: #1a1a3e !important;
-    }
-
+    /* Light Mode Dataframe */
     .stDataFrame {
         background: white !important;
     }
@@ -519,6 +410,7 @@
         color: #1a1a3e !important;
     }
 
+    /* Light Mode Alert */
     .stAlert {
         background: white !important;
     }
@@ -528,6 +420,7 @@
         color: #1a1a3e !important;
     }
 
+    /* Light Mode Expander */
     .stExpander {
         background: white !important;
         border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -537,12 +430,14 @@
         color: #1a1a3e !important;
     }
 
+    /* Light Mode Tag */
     .tag-display {
         background: rgba(102, 126, 234, 0.08) !important;
         border: 1px solid rgba(102, 126, 234, 0.3) !important;
         color: #4a3f8a !important;
     }
 
+    /* Light Mode Metric */
     .metric-card {
         background: white !important;
         border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -553,6 +448,7 @@
         color: rgba(0, 0, 0, 0.7) !important;
     }
 
+    /* Light Mode Best Algo */
     .best-algo {
         background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
         color: white !important;
@@ -566,12 +462,14 @@
         color: rgba(255, 255, 255, 0.9) !important;
     }
 
+    /* Light Mode Button */
     .stButton>button,
     .stDownloadButton button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         color: white !important;
     }
 
+    /* Light Mode Warning/Info */
     .warning {
         background: rgba(255, 193, 7, 0.15) !important;
         color: #856404 !important;
@@ -584,6 +482,7 @@
         border-left: 4px solid #17a2b8 !important;
     }
 
+    /* Light Mode Scrollbar */
     ::-webkit-scrollbar-track {
         background: rgba(0, 0, 0, 0.05) !important;
     }
@@ -592,6 +491,7 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     }
 
+    /* Light Mode Success/Info/Warning/Error */
     .stSuccess {
         background: #d4edda !important;
     }
@@ -624,6 +524,7 @@
         color: #721c24 !important;
     }
 
+    /* Light Mode Column Headers */
     .stMarkdown h1,
     .stMarkdown h2,
     .stMarkdown h3,
@@ -638,10 +539,23 @@
         color: #1a1a3e !important;
     }
 
+    /* Light Mode Placeholder */
     .stTextInput input::placeholder {
         color: #999 !important;
     }
 
+    /* Light Mode Success Message */
+    .stSuccess,
+    .element-container div[data-testid="stAlert"] {
+        background: #d4edda !important;
+    }
+
+    .stSuccess p,
+    .element-container div[data-testid="stAlert"] p {
+        color: #155724 !important;
+    }
+
+    /* Footer Light Mode */
     .footer-text {
         color: rgba(0, 0, 0, 0.6) !important;
     }
