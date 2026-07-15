@@ -1227,6 +1227,11 @@ if generate_clicked:
                 st.markdown("---")
                 st.markdown("## 📋 Best Algorithm Report")
 
+                # Get style/color/size from session state
+                styles_dict = st.session_state.get('item_styles', {})
+                colors_dict = st.session_state.get('item_colors', {})
+                sizes_dict = st.session_state.get('item_sizes', {})
+
                 summary_df = build_full_summary(best_plates, demand, original_qty)
 
                 if not summary_df.empty:
@@ -1268,7 +1273,6 @@ if generate_clicked:
                         "Plate ID": plate_name_str,
                         "Sheets": p.get("sheets", 0),
                         "Total UPS": total_ups,
-
                     })
                     total_sheets_sum += p.get("sheets", 0)
                     total_ups_sum += total_ups
@@ -1278,7 +1282,6 @@ if generate_clicked:
                     "Plate ID": "**TOTAL**",
                     "Sheets": total_sheets_sum,
                     "Total UPS": total_ups_sum,
-
                 })
 
                 plate_details_df = pd.DataFrame(plate_rows)
@@ -1303,7 +1306,19 @@ if generate_clicked:
                     )
                 
                 with col2:
-                    pdf_buffer = generate_pdf_report(best_plates, demand, original_qty, best_algo, best_waste, job_number)
+                    # ✅ PDF with Style, Color, Size
+                    pdf_buffer = generate_pdf_report(
+                        best_plates, 
+                        demand, 
+                        original_qty, 
+                        best_algo, 
+                        best_waste, 
+                        job_number,
+                        styles_dict,
+                        colors_dict,
+                        sizes_dict
+                    )
+                    
                     if pdf_buffer:
                         st.download_button(
                             "📄 Download PDF Report",
