@@ -28,28 +28,23 @@ import os
 
 def load_css():
     """Load CSS from static/css/style.css"""
-    try:
-        css_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "static",
-            "css",
-            "style.css"
-        )
+    css_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "static",
+        "css",
+        "style.css"
+    )
 
+    if os.path.exists(css_path):
         with open(css_path, "r", encoding="utf-8") as f:
-            css = f.read()
+            return f"<style>{f.read()}</style>"
 
-        return f"<style>{css}</style>"
-
-    except Exception as e:
-        st.error(f"CSS Load Error: {e}")
-        return ""
+    return ""
 
 # ================================================================
 # APPLY CSS
 # ================================================================
 st.markdown(load_css(), unsafe_allow_html=True)
-
 # ================================================================
 # IMPORT EXCEL GENERATOR (from utils)
 # ================================================================
