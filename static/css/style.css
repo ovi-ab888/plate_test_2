@@ -1,25 +1,21 @@
-/*
- * Plate Ratio System - Complete CSS
- * Design by Ovi
- * Version: 26
- */
+/* static/style.css */
 
 /* ================================================================
-   FONT IMPORTS
+   MODERN CSS FOR PLATE RATIO SYSTEM (Light + Dark Mode Compatible)
    ================================================================ */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 * {
     font-family: 'Inter', sans-serif;
 }
 
-/* ================================================================
-   DARK MODE (Default)
-   ================================================================ */
+/* ===== DARK MODE (ডিফল্ট) ===== */
 .stApp {
     background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%);
 }
 
+/* Dark Mode Text Colors */
 .stApp,
 .stApp p,
 .stApp div,
@@ -28,9 +24,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   HEADER
-   ================================================================ */
+/* Dark Mode Cards */
 .main-header {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
     backdrop-filter: blur(10px);
@@ -55,15 +49,6 @@
     margin-top: 0.5rem;
 }
 
-.designer-name {
-    color: rgba(255, 255, 255, 0.6) !important;
-    font-size: 0.85rem !important;
-    margin-top: 0.5rem !important;
-}
-
-/* ================================================================
-   CARDS
-   ================================================================ */
 .card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
@@ -91,9 +76,7 @@
     padding-bottom: 0.5rem;
 }
 
-/* ================================================================
-   INPUTS
-   ================================================================ */
+/* Dark Mode Inputs */
 .stNumberInput input,
 .stTextInput input {
     background: rgba(255, 255, 255, 0.08) !important;
@@ -110,6 +93,7 @@
     background: rgba(255, 255, 255, 0.12) !important;
 }
 
+/* Dark Mode Select/Radio */
 .stSelectbox label,
 .stNumberInput label,
 .stTextInput label,
@@ -125,9 +109,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   SIDEBAR
-   ================================================================ */
+/* Dark Mode Sidebar */
 .css-1d391kg {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
@@ -139,9 +121,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   DATAFRAME
-   ================================================================ */
+/* Dark Mode Dataframe */
 .stDataFrame {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 16px;
@@ -161,9 +141,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   ALERTS
-   ================================================================ */
+/* Dark Mode Alert */
 .stAlert {
     background: rgba(255, 255, 255, 0.05) !important;
 }
@@ -173,23 +151,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-.stSuccess,
-.stInfo,
-.stWarning,
-.stError {
-    background: rgba(255, 255, 255, 0.05) !important;
-}
-
-.stSuccess p,
-.stInfo p,
-.stWarning p,
-.stError p {
-    color: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* ================================================================
-   EXPANDER
-   ================================================================ */
+/* Dark Mode Expander */
 .stExpander {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -199,9 +161,44 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   BEST ALGORITHM BANNER
-   ================================================================ */
+/* Dark Mode Tag */
+.tag-display {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    color: #667eea;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Dark Mode Metric */
+.metric-card {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1rem;
+    color: white;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.metric-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7) !important;
+    margin-top: 0.5rem;
+}
+
+/* Dark Mode Best Algo */
 .best-algo {
     background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
     border-radius: 20px;
@@ -222,9 +219,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ================================================================
-   BUTTONS
-   ================================================================ */
+/* Dark Mode Button */
 .stButton>button,
 .stDownloadButton button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
@@ -244,9 +239,25 @@
     box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4) !important;
 }
 
-/* ================================================================
-   SCROLLBAR
-   ================================================================ */
+/* Dark Mode Warning/Info */
+.warning {
+    background: rgba(255, 193, 7, 0.1) !important;
+    padding: 12px;
+    border-radius: 12px;
+    border-left: 4px solid #ffc107 !important;
+    color: #ffc107 !important;
+    margin: 1rem 0;
+}
+
+.info {
+    background: rgba(23, 162, 184, 0.1) !important;
+    padding: 12px;
+    border-radius: 12px;
+    border-left: 4px solid #17a2b8 !important;
+    color: #17a2b8 !important;
+}
+
+/* Dark Mode Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -262,9 +273,37 @@
     border-radius: 10px;
 }
 
-/* ================================================================
-   FOOTER
-   ================================================================ */
+/* Dark Mode Success/Info/Warning/Error */
+.stSuccess,
+.stInfo,
+.stWarning,
+.stError {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.stSuccess p,
+.stInfo p,
+.stWarning p,
+.stError p {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Dark Mode Column Headers in Manual Input */
+.stMarkdown h1,
+.stMarkdown h2,
+.stMarkdown h3,
+.stMarkdown h4,
+.stMarkdown h5,
+.stMarkdown h6 {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.stMarkdown strong,
+.stMarkdown b {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Footer Dark Mode */
 .footer-text {
     color: rgba(255, 255, 255, 0.6) !important;
 }
@@ -274,46 +313,7 @@
     background: rgba(255, 255, 255, 0.02) !important;
 }
 
-/* ================================================================
-   PASSWORD PAGE
-   ================================================================ */
-.password-container {
-    max-width: 460px;
-    margin: 40px auto 8px auto;
-    padding: 2.8rem 2rem 1.8rem 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    border-radius: 32px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-}
-
-.lock-icon {
-    font-size: 3rem;
-    margin: 1rem 0;
-    animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-#MainMenu,
-header,
-footer {
-    visibility: hidden;
-}
-
-/* ================================================================
-   LIGHT MODE
-   ================================================================ */
+/* ===== LIGHT MODE ===== */
 @media (prefers-color-scheme: light) {
     .stApp {
         background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%);
@@ -398,6 +398,7 @@ footer {
         color: #1a1a3e !important;
     }
 
+    /* Light Mode Sidebar */
     .css-1d391kg {
         background: rgba(255, 255, 255, 0.95) !important;
         border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -443,6 +444,22 @@ footer {
         color: #1a1a3e !important;
     }
 
+    .tag-display {
+        background: rgba(102, 126, 234, 0.08) !important;
+        border: 1px solid rgba(102, 126, 234, 0.3) !important;
+        color: #4a3f8a !important;
+    }
+
+    .metric-card {
+        background: white !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        color: #1a1a3e !important;
+    }
+
+    .metric-label {
+        color: rgba(0, 0, 0, 0.7) !important;
+    }
+
     .best-algo {
         background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
         color: white !important;
@@ -460,6 +477,18 @@ footer {
     .stDownloadButton button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         color: white !important;
+    }
+
+    .warning {
+        background: rgba(255, 193, 7, 0.15) !important;
+        color: #856404 !important;
+        border-left: 4px solid #ffc107 !important;
+    }
+
+    .info {
+        background: rgba(23, 162, 184, 0.15) !important;
+        color: #0c5460 !important;
+        border-left: 4px solid #17a2b8 !important;
     }
 
     ::-webkit-scrollbar-track {
@@ -520,6 +549,16 @@ footer {
         color: #999 !important;
     }
 
+    .stSuccess,
+    .element-container div[data-testid="stAlert"] {
+        background: #d4edda !important;
+    }
+
+    .stSuccess p,
+    .element-container div[data-testid="stAlert"] p {
+        color: #155724 !important;
+    }
+
     .footer-text {
         color: rgba(0, 0, 0, 0.6) !important;
     }
@@ -528,35 +567,4 @@ footer {
         border-top: 2px solid rgba(102, 126, 234, 0.3) !important;
         background: rgba(255, 255, 255, 0.5) !important;
     }
-}
-
-/* ================================================================
-   RESPONSIVE DESIGN
-   ================================================================ */
-@media (max-width: 768px) {
-    .main-header {
-        padding: 1rem;
-    }
-
-    .main-header h1 {
-        font-size: 1.8rem;
-    }
-
-    .best-algo {
-        padding: 1rem;
-    }
-
-    .best-algo h2 {
-        font-size: 1.2rem;
-    }
-
-    .card {
-        padding: 1rem;
-    }
-}
-
-/* Sidebar Visible */
-section[data-testid="stSidebar"] {
-    display: flex !important;
-    width: 300px !important;
 }
