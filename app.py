@@ -664,10 +664,10 @@ def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent
 # PDF REPORT GENERATOR
 # ================================================================
 def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, job_number="", styles_dict=None, colors_dict=None, sizes_dict=None):
-    """Generate PDF report with Style, Color, Size columns"""
+    """Generate PDF report with Style, Color, Size columns - Portrait Mode"""
     try:
         from reportlab.lib import colors
-        from reportlab.lib.pagesizes import A4, landscape
+        from reportlab.lib.pagesizes import A4  # ✅ Portrait (A4)
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib.enums import TA_CENTER
@@ -684,43 +684,43 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
     try:
         buffer = BytesIO()
         doc = SimpleDocTemplate(
-            buffer, pagesize=landscape(A4),
-            rightMargin=25, leftMargin=25, topMargin=25, bottomMargin=25
+            buffer, pagesize=A4,  # ✅ Portrait
+            rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20
         )
         styles = getSampleStyleSheet()
         
         # Custom styles
         title_style = ParagraphStyle(
             'CustomTitle', parent=styles['Heading1'],
-            fontSize=20, alignment=TA_CENTER,
+            fontSize=18, alignment=TA_CENTER,
             textColor=colors.HexColor('#667eea'),
             spaceAfter=6,
             fontName='Helvetica-Bold'
         )
         job_style = ParagraphStyle(
             'JobStyle', parent=styles['Heading2'],
-            fontSize=16, alignment=TA_CENTER,
+            fontSize=14, alignment=TA_CENTER,
             textColor=colors.HexColor('#764ba2'),
             spaceAfter=8,
             fontName='Helvetica-Bold'
         )
         subtitle_style = ParagraphStyle(
             'CustomSubtitle', parent=styles['Normal'],
-            fontSize=12, alignment=TA_CENTER,
+            fontSize=10, alignment=TA_CENTER,
             textColor=colors.grey,
             spaceAfter=14,
             fontName='Helvetica'
         )
         section_header_style = ParagraphStyle(
             'SectionHeader', parent=styles['Heading2'],
-            fontSize=16, alignment=TA_CENTER,
+            fontSize=14, alignment=TA_CENTER,
             textColor=colors.HexColor('#667eea'),
             spaceAfter=10,
             fontName='Helvetica-Bold'
         )
         footer_style = ParagraphStyle(
             'Footer', parent=styles['Normal'],
-            fontSize=10, alignment=TA_CENTER,
+            fontSize=9, alignment=TA_CENTER,
             textColor=colors.grey,
             spaceTop=14,
             fontName='Helvetica'
@@ -749,12 +749,10 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         
         sl = 1
         for tag in demand.keys():
-            # Get style/color/size from session state
             style = styles_dict.get(tag, "")
             color = colors_dict.get(tag, "")
             size = sizes_dict.get(tag, "")
             
-            # If empty, show "-"
             if not style:
                 style = "-"
             if not color:
@@ -796,26 +794,26 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
         total_row.extend([str(total_produced_sum), str(total_excess_sum), total_excess_percent])
         summary_data.append(total_row)
         
-        # Create table
+        # Create table - adjust font size for portrait
         main_table = Table(summary_data, repeatRows=1)
         main_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('FONTSIZE', (0, 0), (-1, 0), 8),
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
             ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -2), 11),
+            ('FONTSIZE', (0, 1), (-1, -2), 7),
             ('ALIGN', (0, 1), (-1, -2), 'CENTER'),
             ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#e8f0fe')),
             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, -1), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 10),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
         ]))
         
         for i in range(1, len(summary_data) - 1):
@@ -823,11 +821,11 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
                 main_table.setStyle([('BACKGROUND', (0, i), (-1, i), colors.HexColor('#f8f9fa'))])
         
         story.append(main_table)
-        story.append(Spacer(1, 18))
+        story.append(Spacer(1, 15))
         
         # ============= PLATE DETAILS =============
         story.append(Paragraph("🧾 Plate Configuration Details", section_header_style))
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 8))
         
         plate_data = [["SL", "Plate ID", "Sheets", "Total UPS"]]
         for idx, p in enumerate(plates, 1):
@@ -847,23 +845,21 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -2), 11),
+            ('FONTSIZE', (0, 1), (-1, -2), 8),
             ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#e8f0fe')),
             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, -1), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 10),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
         ]))
         
         story.append(plate_table)
-        story.append(Spacer(1, 18))
+        story.append(Spacer(1, 15))
         
         # Footer
         story.append(Paragraph(
@@ -878,6 +874,7 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
     except Exception as e:
         print(f"PDF Error: {e}")
         return None
+        
 # ================================================================
 # MAIN CONTENT - Header
 # ================================================================
