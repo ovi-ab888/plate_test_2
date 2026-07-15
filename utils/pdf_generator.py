@@ -1,17 +1,36 @@
-def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
-                        algo_name: str, waste_percent: float,
-                        styles_dict: dict = None, colors_dict: dict = None, 
-                        sizes_dict: dict = None, job_number: str = "") -> BytesIO | None:
-    """Generate professional PDF report with Style, Color, Size columns and Job Number"""
-    try:
-        from reportlab.lib import colors
-        from reportlab.lib.pagesizes import A4, landscape
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.enums import TA_CENTER, TA_RIGHT
-    except ImportError:
-        return None
+# utils/pdf_generator.py
 
+"""
+PDF Report Generator - Portrait Mode with Style, Color, Size
+"""
+
+from io import BytesIO
+from datetime import datetime
+
+# ✅ ReportLab ইম্পোর্ট - সঠিকভাবে চেক করুন
+try:
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_CENTER
+    REPORTLAB_AVAILABLE = True
+    print("✅ ReportLab imported successfully")  # Debug
+except ImportError as e:
+    REPORTLAB_AVAILABLE = False
+    print(f"❌ ReportLab import failed: {e}")
+
+
+def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
+                        job_number="", styles_dict=None, colors_dict=None, sizes_dict=None):
+    """Generate PDF report - returns BytesIO or None"""
+    
+    # ✅ Check if reportlab is available
+    if not REPORTLAB_AVAILABLE:
+        print("❌ ReportLab not available")
+        return None
+    
+    # ... বাকি কোড
     # Initialize empty dicts if not provided
     if styles_dict is None:
         styles_dict = {}
