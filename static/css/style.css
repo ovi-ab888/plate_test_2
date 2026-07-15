@@ -24,7 +24,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Dark Mode Cards */
+/* ===== MAIN HEADER ===== */
 .main-header {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
     backdrop-filter: blur(10px);
@@ -49,6 +49,14 @@
     margin-top: 0.5rem;
 }
 
+/* ✅ Design by Ovi - যোগ করা */
+.designer-name {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.85rem !important;
+    margin-top: 0.5rem !important;
+}
+
+/* ===== CARDS ===== */
 .card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
@@ -76,7 +84,27 @@
     padding-bottom: 0.5rem;
 }
 
-/* Dark Mode Inputs */
+/* ===== CONFIGURATION CARD ===== */
+.config-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.config-card h3 {
+    margin: 0 0 1rem 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border-bottom: 2px solid #667eea;
+    display: inline-block;
+    padding-bottom: 0.5rem;
+}
+
+/* ===== Dark Mode Inputs ===== */
 .stNumberInput input,
 .stTextInput input {
     background: rgba(255, 255, 255, 0.08) !important;
@@ -93,7 +121,7 @@
     background: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* Dark Mode Select/Radio */
+/* ===== Dark Mode Select/Radio ===== */
 .stSelectbox label,
 .stNumberInput label,
 .stTextInput label,
@@ -109,7 +137,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Dark Mode Sidebar */
+/* ===== Dark Mode Sidebar ===== */
 .css-1d391kg {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
@@ -121,7 +149,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Dark Mode Dataframe */
+/* ===== Dark Mode Dataframe ===== */
 .stDataFrame {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 16px;
@@ -141,7 +169,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Dark Mode Alert */
+/* ===== Dark Mode Alert ===== */
 .stAlert {
     background: rgba(255, 255, 255, 0.05) !important;
 }
@@ -151,7 +179,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Dark Mode Expander */
+/* ===== Dark Mode Expander ===== */
 .stExpander {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -161,7 +189,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Dark Mode Tag */
+/* ===== Dark Mode Tag ===== */
 .tag-display {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
     padding: 10px;
@@ -173,7 +201,7 @@
     font-size: 0.9rem;
 }
 
-/* Dark Mode Metric */
+/* ===== Dark Mode Metric ===== */
 .metric-card {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
     backdrop-filter: blur(10px);
@@ -198,7 +226,7 @@
     margin-top: 0.5rem;
 }
 
-/* Dark Mode Best Algo */
+/* ===== Dark Mode Best Algo ===== */
 .best-algo {
     background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
     border-radius: 20px;
@@ -219,7 +247,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Dark Mode Button */
+/* ===== Dark Mode Button ===== */
 .stButton>button,
 .stDownloadButton button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
@@ -239,7 +267,7 @@
     box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4) !important;
 }
 
-/* Dark Mode Warning/Info */
+/* ===== Dark Mode Warning/Info ===== */
 .warning {
     background: rgba(255, 193, 7, 0.1) !important;
     padding: 12px;
@@ -257,7 +285,7 @@
     color: #17a2b8 !important;
 }
 
-/* Dark Mode Scrollbar */
+/* ===== Dark Mode Scrollbar ===== */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -273,7 +301,7 @@
     border-radius: 10px;
 }
 
-/* Dark Mode Success/Info/Warning/Error */
+/* ===== Dark Mode Success/Info/Warning/Error ===== */
 .stSuccess,
 .stInfo,
 .stWarning,
@@ -288,7 +316,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Dark Mode Column Headers in Manual Input */
+/* ===== Dark Mode Headers ===== */
 .stMarkdown h1,
 .stMarkdown h2,
 .stMarkdown h3,
@@ -303,7 +331,7 @@
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Footer Dark Mode */
+/* ===== Footer Dark Mode ===== */
 .footer-text {
     color: rgba(255, 255, 255, 0.6) !important;
 }
@@ -311,9 +339,15 @@
 .footer-border {
     border-top: 2px solid rgba(102, 126, 234, 0.3) !important;
     background: rgba(255, 255, 255, 0.02) !important;
+    border-radius: 20px;
+    text-align: center;
+    padding: 2rem;
+    margin-top: 3rem;
 }
 
-/* ===== LIGHT MODE ===== */
+/* ================================================================
+   LIGHT MODE
+   ================================================================ */
 @media (prefers-color-scheme: light) {
     .stApp {
         background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%);
@@ -352,6 +386,10 @@
         -webkit-text-fill-color: transparent;
     }
 
+    .designer-name {
+        color: rgba(0, 0, 0, 0.6) !important;
+    }
+
     .card {
         background: rgba(255, 255, 255, 0.95) !important;
         border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -367,6 +405,11 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         border-bottom: 2px solid #667eea;
+    }
+
+    .config-card {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
     }
 
     .stNumberInput input,
@@ -398,7 +441,6 @@
         color: #1a1a3e !important;
     }
 
-    /* Light Mode Sidebar */
     .css-1d391kg {
         background: rgba(255, 255, 255, 0.95) !important;
         border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -547,16 +589,6 @@
 
     .stTextInput input::placeholder {
         color: #999 !important;
-    }
-
-    .stSuccess,
-    .element-container div[data-testid="stAlert"] {
-        background: #d4edda !important;
-    }
-
-    .stSuccess p,
-    .element-container div[data-testid="stAlert"] p {
-        color: #155724 !important;
     }
 
     .footer-text {
