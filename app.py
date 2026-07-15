@@ -46,6 +46,18 @@ def load_css():
 # ================================================================
 st.markdown(load_css(), unsafe_allow_html=True)
 
+# ================================================================
+# IMPORT PDF GENERATOR
+# ================================================================
+try:
+    from utils.pdf_generator import generate_pdf_report
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
+
+    def generate_pdf_report(*args, **kwargs):
+        return None
+
 
 # ================================================================
 # IMPORT EXCEL GENERATOR (from utils)
