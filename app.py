@@ -46,30 +46,6 @@ def load_css():
 # ================================================================
 st.markdown(load_css(), unsafe_allow_html=True)
 
-# ================================================================
-# login CSS LOADER
-# ================================================================
-import os
-
-def load_css(filename):
-    css_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "static",
-        "css",
-        filename
-    )
-
-    if os.path.exists(css_path):
-        with open(css_path, "r", encoding="utf-8") as f:
-            return f"<style>{f.read()}</style>"
-
-    return ""
-
-# ================================================================
-# login CSS
-# ================================================================
-st.markdown(load_css("login.css"), unsafe_allow_html=True)
-
 
 # ================================================================
 # IMPORT EXCEL GENERATOR (from utils)
