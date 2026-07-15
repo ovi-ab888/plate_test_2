@@ -67,7 +67,7 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
         ))
         story.append(Spacer(1, 10))
 
-        # ============= MAIN SUMMARY TABLE WITH STYLE, COLOR, SIZE =============
+        # ============= MAIN SUMMARY TABLE =============
         # Build header with all columns
         header_row = ["SL", "Style", "Color", "Size", "Original", "With Add-on"]
         for p in plates:
@@ -79,18 +79,10 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
         # Build data rows
         sl = 1
         for tag in demand.keys():
-            # Get style/color/size from session state
+            # Get style/color/size from session state or use defaults
             style = styles_dict.get(tag, "")
             color = colors_dict.get(tag, "")
             size = sizes_dict.get(tag, "")
-            
-            # If empty, show "-"
-            if not style:
-                style = "-"
-            if not color:
-                color = "-"
-            if not size:
-                size = "-"
             
             row = [str(sl), style, color, size, 
                    str(original_qty.get(tag, 0)), str(demand[tag])]
@@ -171,16 +163,6 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
                 str(sum(p["layout"].values()))
             ])
         
-        # Add total row
-        total_sheets = sum(p["sheets"] for p in plates)
-        total_ups = sum(sum(p["layout"].values()) for p in plates)
-        plate_data.append([
-            "📊",
-            "TOTAL",
-            str(total_sheets),
-            str(total_ups)
-        ])
-        
         plate_table = Table(plate_data)
         plate_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
@@ -192,9 +174,6 @@ def generate_pdf_report(plates: list, demand: dict, original_qty: dict,
             ('FONTSIZE', (0, 1), (-1, -1), 7),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f0f0')),
-            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 7),
         ]))
         
         story.append(plate_table)
