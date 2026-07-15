@@ -34,18 +34,32 @@ def load_css():
 
 
 # ================================================================
-# APPLY CSS - static/style.css থেকে লোড করুন
+# CSS LOADER
 # ================================================================
+import os
+
 def load_css():
-    """Load CSS from static/style.css file"""
+    """Load CSS from static/css/style.css"""
     try:
-        with open("static/style.css", "r", encoding="utf-8") as f:
+        css_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "static",
+            "css",
+            "style.css"
+        )
+
+        with open(css_path, "r", encoding="utf-8") as f:
             css = f.read()
+
         return f"<style>{css}</style>"
-    except FileNotFoundError:
+
+    except Exception as e:
+        st.error(f"CSS Load Error: {e}")
         return ""
 
-# CSS প্রয়োগ করুন
+# ================================================================
+# APPLY CSS
+# ================================================================
 st.markdown(load_css(), unsafe_allow_html=True)
 # ================================================================
 # IMPORT EXCEL GENERATOR (from utils)
