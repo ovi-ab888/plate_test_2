@@ -1043,7 +1043,14 @@ if generate_clicked:
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    excel_buffer = generate_excel_report(best_plates, demand, original_qty, best_algo, best_waste, job_number)
+                    excel_buffer = generate_excel_report(
+                        best_plates, 
+                        demand, 
+                        original_qty, 
+                        best_algo, 
+                        best_waste, 
+                        job_number
+                    )
                     
                     if excel_buffer is not None:
                         st.download_button(
@@ -1054,7 +1061,7 @@ if generate_clicked:
                             use_container_width=True
                         )
                     else:
-                        st.error("❌ Excel report generation failed. Please check the data.")
+                        st.error("❌ Excel report could not be generated. Please check the data.")
                 
                 with col2:
                     # Get style/color/size from session state
