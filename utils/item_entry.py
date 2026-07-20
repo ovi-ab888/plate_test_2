@@ -140,11 +140,17 @@ def render_excel_upload(addon_percent):
 
             meta = {}
             preview_row = {}
-            for col in meta_cols:
-                val = row[col]
-                val_str = "" if pd.isna(val) else str(val).strip()
-                meta[str(col)] = val_str
-                preview_row[str(col)] = val_str
+        for col in meta_cols:
+            val = row[col]
+            if pd.isna(val):
+                val_str = ""
+            elif isinstance(val, float) and val.is_integer():
+                # 7120044.0 -> "7120044" (.0 bad dao)
+                val_str = str(int(val))
+            else:
+                val_str = str(val).strip()
+            meta[str(col)] = val_str
+            preview_row[str(col)] = val_str
 
             preview_row["Quantity"] = qty_int
 
