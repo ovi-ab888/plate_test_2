@@ -107,8 +107,8 @@ def render_excel_upload(addon_percent):
         # STEP 2: Baki shob column = dynamic meta column (original order-e)
         # ================================================================
         meta_cols = [c for c in df.columns if c != qty_col]
-        # Pandas auto-generate kora "Unnamed: N" (blank header) column bad dao
-        meta_cols = [c for c in meta_cols if not str(c).lower().strip().startswith('unnamed')]
+        # Sompurno khali column (jegula shob row e blank/NaN) bad dao - eigula stray "Unnamed" column
+        meta_cols = [c for c in meta_cols if not df[c].isna().all()]
 
         # ================================================================
         # STEP 3: Row by row process
@@ -140,11 +140,11 @@ def render_excel_upload(addon_percent):
 
             meta = {}
             preview_row = {}
-        for col in meta_cols:
-            val = row[col]
-            val_str = "" if pd.isna(val) else str(val).strip()
-            meta[str(col)] = val_str
-            preview_row[str(col)] = val_str
+            for col in meta_cols:
+                val = row[col]
+                val_str = "" if pd.isna(val) else str(val).strip()
+                meta[str(col)] = val_str
+                preview_row[str(col)] = val_str
 
             preview_row["Quantity"] = qty_int
 
