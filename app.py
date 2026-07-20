@@ -22,6 +22,7 @@ from algorithms.v1_helpers import calculate_waste_percent, build_full_summary
 from utils.auth import check_password
 from utils.sidebar import render_sidebar
 from utils.ui_components import render_header, render_footer
+from utils.config_section import render_config
 
 
 # ================================================================
@@ -149,33 +150,7 @@ st.markdown("""
 # ================================================================
 # MAIN CONTENT - Configuration (৫ কলাম)
 # ================================================================
-st.markdown("""
-<div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1);">
-    <h3 style="margin: 0 0 1rem 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; border-bottom: 2px solid #667eea; display: inline-block; padding-bottom: 0.5rem;">⚙️ Configuration</h3>
-</div>
-""", unsafe_allow_html=True)
-
-col1, col2, col3, col4, col5 = st.columns(5)
-
-with col1:
-    n_items = st.number_input("📦 Number of Items", min_value=1, max_value=500, value=3)
-
-with col2:
-    capacity = st.number_input("📀 Plate Capacity (UPS)", min_value=1, max_value=200, value=10)
-
-with col3:
-    max_plates = st.number_input("🎨 Max Plates", min_value=1, max_value=50, value=3)
-
-with col4:
-    addon_percent = st.number_input("📈 Add-on (%)", min_value=0.0, max_value=50.0, value=0.0, step=0.5)
-
-with col5:
-    job_number = st.text_input(
-        "🔢 Job Number",
-        value=f"JOB-{datetime.now().strftime('%d-%m-%Y_%H:%M')}",
-        help="Enter a job number for tracking"
-    )
-
+n_items, capacity, max_plates, addon_percent, job_number = render_config()
 # ================================================================
 # MAIN CONTENT - Item Entry
 # ================================================================
