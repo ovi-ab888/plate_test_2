@@ -108,7 +108,7 @@ def render_excel_upload(addon_percent):
         # ================================================================
         meta_cols = [c for c in df.columns if c != qty_col]
         # Sompurno khali column (jegula shob row e blank/NaN) bad dao - eigula stray "Unnamed" column
-        meta_cols = [c for c in meta_cols if not df[c].isna().all()]
+        meta_cols = [c for c in meta_cols if not str(c).lower().strip().startswith('unnamed')]
 
         # ================================================================
         # STEP 3: Row by row process
