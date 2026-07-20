@@ -19,8 +19,9 @@ from math import ceil
 # Import from algorithms
 from algorithms import ALGORITHM_REGISTRY, get_algorithm
 from algorithms.v1_helpers import calculate_waste_percent, build_full_summary
-from auth import check_password
-from sidebar import render_sidebar
+from utils.auth import check_password
+from utils.sidebar import render_sidebar
+from utils.ui_components import render_header, render_footer
 
 
 # ================================================================
