@@ -87,11 +87,15 @@ def render_downloads(best_plates, demand, original_qty, best_algo, best_waste, j
     st.markdown("---")
     st.markdown("## 📥 Download Reports")
 
+    item_meta = st.session_state.get('item_meta', {})
+    meta_columns = st.session_state.get('item_meta_columns', [])
+
     col1, col2 = st.columns(2)
 
     with col1:
         excel_buffer = generate_excel_report(
-            best_plates, demand, original_qty, best_algo, best_waste, job_number
+            best_plates, demand, original_qty, best_algo, best_waste, job_number,
+            item_meta=item_meta, meta_columns=meta_columns
         )
         if excel_buffer is not None:
             st.download_button(
@@ -103,6 +107,22 @@ def render_downloads(best_plates, demand, original_qty, best_algo, best_waste, j
             )
         else:
             st.error("❌ Excel report could not be generated. Please check the data.")
+
+    with col2:
+        pdf_buffer = generate_pdf_report(
+            best_plates, demand, original_qty, best_algo, best_waste, job_number,
+            item_meta=item_meta, meta_columns=meta_columns
+        )
+        if pdf_buffer is not None:
+            st.download_button(
+                "📄 Download PDF Report",
+                pdf_buffer,
+                f"Plate_Ratio_Report_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+        else:
+            st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
 
     with col2:
         styles_dict = st.session_state.get('item_styles', {})
