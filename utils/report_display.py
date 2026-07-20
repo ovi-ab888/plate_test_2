@@ -27,7 +27,6 @@ def render_report(results, comparison_df, best_algo, best_waste, best_plates, de
     st.markdown("---")
     st.markdown("## 📋 Best Algorithm Report")
 
-    # Dynamic meta columns (Excel-e jei column chilo, oi naam + order-e)
     item_meta = st.session_state.get('item_meta', {})
     meta_columns = st.session_state.get('item_meta_columns', [])
 
@@ -88,3 +87,20 @@ def render_downloads(best_plates, demand, original_qty, best_algo, best_waste, j
                 use_container_width=True
             )
         else:
+            st.error("❌ Excel report could not be generated. Please check the data.")
+
+    with col2:
+        pdf_buffer = generate_pdf_report(
+            best_plates, demand, original_qty, best_algo, best_waste, job_number,
+            item_meta=item_meta, meta_columns=meta_columns
+        )
+        if pdf_buffer is not None:
+            st.download_button(
+                "📄 Download PDF Report",
+                pdf_buffer,
+                f"Plate_Ratio_Report_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+        else:
+            st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
