@@ -140,7 +140,7 @@ def render_excel_upload(addon_percent):
 
             meta = {}
             preview_row = {}
-       for col in meta_cols:
+        for col in meta_cols:
             val = row[col]
             val_str = "" if pd.isna(val) else str(val).strip()
             meta[str(col)] = val_str
