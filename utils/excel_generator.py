@@ -3,6 +3,13 @@
 """
 Excel Report Generator
 """
+try:
+    import openpyxl
+    EXCEL_AVAILABLE = True
+except ImportError:
+    EXCEL_AVAILABLE = False
+
+# ... existing generate_excel_report() function থাকবে এখানে
 
 import pandas as pd
 from io import BytesIO
