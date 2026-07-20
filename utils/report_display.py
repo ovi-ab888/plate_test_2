@@ -6,9 +6,8 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 
-from algorithms.v1_helpers import build_full_summary
 from utils.pdf_generator import generate_pdf_report, PDF_AVAILABLE
-from utils.excel_generator import generate_excel_report, EXCEL_AVAILABLE
+from utils.excel_generator import generate_excel_report, EXCEL_AVAILABLE, build_full_summary
 
 
 def render_report(results, comparison_df, best_algo, best_waste, best_plates, demand, original_qty, job_number):
@@ -28,30 +27,13 @@ def render_report(results, comparison_df, best_algo, best_waste, best_plates, de
     st.markdown("---")
     st.markdown("## 📋 Best Algorithm Report")
 
-    summary_df = build_full_summary(best_plates, demand, original_qty)
+    # Dynamic meta columns (Excel-e jei column chilo, oi naam + order-e)
+    item_meta = st.session_state.get('item_meta', {})
+    meta_columns = st.session_state.get('item_meta_columns', [])
+
+    summary_df = build_full_summary(best_plates, demand, original_qty, item_meta, meta_columns)
 
     if not summary_df.empty:
-        if summary_df.iloc[-1]["Tag"] != "TOTAL":
-            total_row = {
-                "SL": "📊",
-                "Tag": "TOTAL",
-                "Original QTY": summary_df["Original QTY"].sum(),
-                "Produced (+Add-on)": summary_df["Produced (+Add-on)"].sum(),
-            }
-            for col in summary_df.columns:
-                if col.startswith("Plate "):
-                    total_row[col] = summary_df[col].sum()
-
-            total_row["Total Produced QTY"] = summary_df["Total Produced QTY"].sum()
-            total_excess = summary_df["Excess"].sum()
-            total_row["Excess"] = total_excess
-
-            total_produced_qty = total_row["Total Produced QTY"]
-            total_excess_percent = round((total_excess / total_produced_qty) * 100, 2) if total_produced_qty > 0 else 0
-            total_row["Excess %"] = f"{total_excess_percent}%"
-
-            summary_df = pd.concat([summary_df, pd.DataFrame([total_row])], ignore_index=True)
-
         st.dataframe(summary_df, use_container_width=True, height=350)
 
         st.markdown("### 🧾 Plate Details")
@@ -106,40 +88,3 @@ def render_downloads(best_plates, demand, original_qty, best_algo, best_waste, j
                 use_container_width=True
             )
         else:
-            st.error("❌ Excel report could not be generated. Please check the data.")
-
-    with col2:
-        pdf_buffer = generate_pdf_report(
-            best_plates, demand, original_qty, best_algo, best_waste, job_number,
-            item_meta=item_meta, meta_columns=meta_columns
-        )
-        if pdf_buffer is not None:
-            st.download_button(
-                "📄 Download PDF Report",
-                pdf_buffer,
-                f"Plate_Ratio_Report_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
-        else:
-            st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
-
-    with col2:
-        styles_dict = st.session_state.get('item_styles', {})
-        colors_dict = st.session_state.get('item_colors', {})
-        sizes_dict = st.session_state.get('item_sizes', {})
-
-        pdf_buffer = generate_pdf_report(
-            best_plates, demand, original_qty, best_algo, best_waste, job_number,
-            styles_dict, colors_dict, sizes_dict
-        )
-        if pdf_buffer is not None:
-            st.download_button(
-                "📄 Download PDF Report",
-                pdf_buffer,
-                f"Plate_Ratio_Report_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
-        else:
-            st.info("ℹ️ PDF download requires reportlab. Install with: pip install reportlab")
