@@ -1,6 +1,6 @@
 # utils/excel_generator.py
 """
-Excel Report Generator (Dynamic Column Support)
+Excel Report Generator - Dynamic Column Support
 """
 try:
     import openpyxl
@@ -14,6 +14,7 @@ from datetime import datetime
 import sys
 import os
 
+# Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
@@ -65,8 +66,8 @@ def build_full_summary(plates, demand, original_qty, item_meta=None, meta_column
     df = pd.DataFrame(rows)
 
     total_row = {"SL": "📊"}
-    for col in meta_columns:
-        total_row[col] = "TOTAL" if col == meta_columns[0] else ""
+    for i, col in enumerate(meta_columns):
+        total_row[col] = "TOTAL" if i == 0 else ""
 
     total_row["Original QTY"] = df["Original QTY"].sum()
     total_row["Produced (+Add-on)"] = df["Produced (+Add-on)"].sum()
@@ -113,19 +114,34 @@ def generate_excel_report(plates, demand, original_qty, algo_name, waste_percent
                 total_ups_sum += total_ups
 
             plate_rows.append({
-                "SL": "TOTAL", "Plate ID": "",
-                "Sheets Required": total_sheets_sum, "Total UPS": total_ups_sum,
+                "SL": "TOTAL",
+                "Plate ID": "",
+                "Sheets Required": total_sheets_sum,
+                "Total UPS": total_ups_sum,
             })
             plate_df = pd.DataFrame(plate_rows)
             plate_df.to_excel(writer, sheet_name="Plate Details", index=False)
 
             # Sheet 3: Info
             info_df = pd.DataFrame({
-                "Property": ["Algorithm", "Waste %", "Total Plates", "Total Sheets",
-                             "Job Number", "Generated On", "Total Items"],
-                "Value": [algo_name, f"{waste_percent}%", len(plates), total_sheets_sum,
-                          job_number if job_number else "N/A",
-                          datetime.now().strftime('%Y-%m-%d %H:%M:%S'), len(demand)]
+                "Property": [
+                    "Algorithm",
+                    "Waste %",
+                    "Total Plates",
+                    "Total Sheets",
+                    "Job Number",
+                    "Generated On",
+                    "Total Items"
+                ],
+                "Value": [
+                    algo_name,
+                    f"{waste_percent}%",
+                    len(plates),
+                    total_sheets_sum,
+                    job_number if job_number else "N/A",
+                    datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    len(demand)
+                ]
             })
             info_df.to_excel(writer, sheet_name="Info", index=False)
 
