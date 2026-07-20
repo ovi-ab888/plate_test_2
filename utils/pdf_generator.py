@@ -3,6 +3,11 @@
 """
 PDF Report Generator - Portrait Mode with Style, Color, Size
 """
+try:
+    import reportlab
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
 
 from io import BytesIO
 from datetime import datetime
