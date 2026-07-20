@@ -1,47 +1,12 @@
-# utils/pdf_generator.py
-
-"""
-PDF Report Generator - Portrait Mode with Style, Color, Size
-"""
-try:
-    import reportlab
-    PDF_AVAILABLE = True
-except ImportError:
-    PDF_AVAILABLE = False
-
-from io import BytesIO
-from datetime import datetime
-
-
-try:
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4, landscape
-    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.enums import TA_CENTER
-    REPORTLAB_AVAILABLE = True
-    print("✅ ReportLab imported successfully")  
-except ImportError as e:
-    REPORTLAB_AVAILABLE = False
-    print(f"❌ ReportLab import failed: {e}")
-
-
-def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent, 
-                        job_number="", styles_dict=None, colors_dict=None, sizes_dict=None):
+def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
+                         job_number="", item_meta=None, meta_columns=None):
     """Generate PDF report - returns BytesIO or None"""
-    
-
     if not REPORTLAB_AVAILABLE:
         print("❌ ReportLab not available")
         return None
-    
 
-    if styles_dict is None:
-        styles_dict = {}
-    if colors_dict is None:
-        colors_dict = {}
-    if sizes_dict is None:
-        sizes_dict = {}
+    item_meta = item_meta or {}
+    meta_columns = meta_columns or []
 
     try:
         buffer = BytesIO()
@@ -51,35 +16,16 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
         )
         styles = getSampleStyleSheet()
 
-        # Custom styles
-        title_style = ParagraphStyle(
-            'CustomTitle', parent=styles['Heading1'],
-            fontSize=14, alignment=TA_CENTER, 
-            textColor=colors.HexColor('#667eea'),
-            spaceAfter=4
-        )
-        job_style = ParagraphStyle(
-            'JobStyle', parent=styles['Heading2'],
-            fontSize=12, alignment=TA_CENTER,
-            textColor=colors.HexColor('#764ba2'),
-            spaceAfter=8
-        )
-        subtitle_style = ParagraphStyle(
-            'CustomSubtitle', parent=styles['Normal'],
-            fontSize=9, alignment=TA_CENTER, 
-            textColor=colors.grey,
-            spaceAfter=12
-        )
-        footer_style = ParagraphStyle(
-            'Footer', parent=styles['Normal'],
-            fontSize=8, alignment=TA_CENTER, 
-            textColor=colors.grey,
-            spaceTop=12
-        )
+        title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=14,
+                                      alignment=TA_CENTER, textColor=colors.HexColor('#667eea'), spaceAfter=4)
+        job_style = ParagraphStyle('JobStyle', parent=styles['Heading2'], fontSize=12,
+                                    alignment=TA_CENTER, textColor=colors.HexColor('#764ba2'), spaceAfter=8)
+        subtitle_style = ParagraphStyle('CustomSubtitle', parent=styles['Normal'], fontSize=9,
+                                         alignment=TA_CENTER, textColor=colors.grey, spaceAfter=12)
+        footer_style = ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8,
+                                       alignment=TA_CENTER, textColor=colors.grey, spaceTop=12)
 
         story = []
-        
-        # Header with Job Number
         story.append(Paragraph("📊 Plate Ratio System - Ratio Report", title_style))
         if job_number:
             story.append(Paragraph(f"🔢 Job Number: {job_number}", job_style))
@@ -90,42 +36,37 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
         ))
         story.append(Spacer(1, 10))
 
-        # ============= MAIN SUMMARY TABLE =============
-        # Build header with all columns
-        header_row = ["SL", "Style", "Color", "Size", "Original", "With Add-on"]
+        # ============= MAIN SUMMARY TABLE (Dynamic columns) =============
+        header_row = ["SL"] + meta_columns + ["Original", "With Add-on"]
         for p in plates:
             header_row.append(f"Plate {p['name']}")
         header_row.extend(["Total Prod.", "Excess", "Excess %"])
-        
+
         summary_data = [header_row]
-        
-        # Build data rows
+
         sl = 1
         for tag in demand.keys():
-            # Get style/color/size from session state or use defaults
-            style = styles_dict.get(tag, "")
-            color = colors_dict.get(tag, "")
-            size = sizes_dict.get(tag, "")
-            
-            row = [str(sl), style, color, size, 
-                   str(original_qty.get(tag, 0)), str(demand[tag])]
-            
+            meta = item_meta.get(tag, {})
+            row = [str(sl)] + [meta.get(col, "") for col in meta_columns]
+            row += [str(original_qty.get(tag, 0)), str(demand[tag])]
+
             total_produced = 0
             for p in plates:
                 ups = p["layout"].get(tag, 0)
                 row.append(str(ups))
                 total_produced += ups * p["sheets"]
-            
+
             excess = total_produced - demand[tag]
             excess_percent = f"{round((excess / demand[tag]) * 100, 2) if demand[tag] else 0}%"
             row.extend([str(total_produced), str(excess), excess_percent])
+
             summary_data.append(row)
             sl += 1
-        
+
         # Total row
-        total_row = ["📊", "TOTAL", "", "", 
-                     str(sum(original_qty.values())), str(sum(demand.values()))]
-        
+        total_row = ["📊"] + ["TOTAL" if i == 0 else "" for i in range(len(meta_columns))]
+        total_row += [str(sum(original_qty.values())), str(sum(demand.values()))]
+
         total_produced_sum = 0
         for p in plates:
             plate_total = 0
@@ -133,18 +74,15 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
                 plate_total += p["layout"].get(tag, 0) * p["sheets"]
             total_row.append(str(plate_total))
             total_produced_sum += plate_total
-        
+
         total_excess_sum = total_produced_sum - sum(demand.values())
         total_excess_percent = (
             f"{round((total_excess_sum / total_produced_sum) * 100, 2) if total_produced_sum > 0 else 0}%"
         )
         total_row.extend([str(total_produced_sum), str(total_excess_sum), total_excess_percent])
         summary_data.append(total_row)
-        
-        # Create main table
+
         main_table = Table(summary_data, repeatRows=1)
-        
-        # Style the table
         table_style = [
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -160,32 +98,23 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]
-        
-        # Apply alternating row colors
         for i in range(1, len(summary_data) - 1):
             if i % 2 == 0:
                 table_style.append(('BACKGROUND', (0, i), (-1, i), colors.HexColor('#f8f9fa')))
-        
         main_table.setStyle(TableStyle(table_style))
         story.append(main_table)
         story.append(Spacer(1, 15))
-        
+
         # ============= PLATE DETAILS TABLE =============
-        story.append(Paragraph("🧾 Plate Configuration Details", 
-                              ParagraphStyle('SubHeader', parent=styles['Heading2'],
-                                           fontSize=11, alignment=TA_CENTER,
-                                           textColor=colors.HexColor('#667eea'))))
+        story.append(Paragraph("🧾 Plate Configuration Details",
+                     ParagraphStyle('SubHeader', parent=styles['Heading2'], fontSize=11,
+                                    alignment=TA_CENTER, textColor=colors.HexColor('#667eea'))))
         story.append(Spacer(1, 8))
-        
+
         plate_data = [["SL", "Plate ID", "Sheets", "Total UPS"]]
         for idx, p in enumerate(plates, 1):
-            plate_data.append([
-                str(idx), 
-                p["name"], 
-                str(p["sheets"]), 
-                str(sum(p["layout"].values()))
-            ])
-        
+            plate_data.append([str(idx), p["name"], str(p["sheets"]), str(sum(p["layout"].values()))])
+
         plate_table = Table(plate_data)
         plate_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
@@ -198,17 +127,14 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]))
-        
         story.append(plate_table)
         story.append(Spacer(1, 15))
-        
-        # ============= FOOTER =============
+
         story.append(Paragraph(
             f"This Report Generated by Ovi's Plate Ratio System | Job: {job_number if job_number else 'N/A'} | All Rights Reserved",
             footer_style
         ))
-        
-        # Build the PDF
+
         doc.build(story)
         buffer.seek(0)
         return buffer
