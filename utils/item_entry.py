@@ -9,40 +9,60 @@ import streamlit as st
 QTY_KEYWORDS = ['quantity', 'qty', 'qty.', 'quantities', 'total', 'pcs', 'pieces', 'count']
 
 
-def render_manual_entry(n_items):
-    """Renders manual entry rows and returns list of item dicts"""
+def render_manual_entry(n_items=5):
+    """Renders an Excel-style editable grid for manual item entry (dynamic rows)"""
+
+    if 'manual_entry_df' not in st.session_state:
+        st.session_state['manual_entry_df'] = pd.DataFrame(
+            [{"Style": "", "Color": "", "Size": "", "Quantity": 0} for _ in range(n_items)]
+        )
+
+    edited_df = st.data_editor(
+        st.session_state['manual_entry_df'],
+        num_rows="dynamic",
+        use_container_width=True,
+        hide_index=True,
+        key="manual_entry_editor",
+        column_config={
+            "Style": st.column_config.TextColumn("Style", width="medium"),
+            "Color": st.column_config.TextColumn("Color", width="medium"),
+            "Size": st.column_config.TextColumn("Size", width="medium"),
+            "Quantity": st.column_config.NumberColumn("Quantity", min_value=0, step=1, width="small"),
+        },
+    )
+
+    st.session_state['manual_entry_df'] = edited_df
+
+    # ================================================================
+    # Grid theke data + item_meta build kora (Excel upload er moto same system)
+    # ================================================================
     data = []
     item_meta = {}
     meta_columns = ["Style", "Color", "Size"]
 
-    cols = st.columns([0.5, 2, 2, 2, 2.5])
-    cols[0].markdown("**SL**")
-    cols[1].markdown("**Style**")
-    cols[2].markdown("**Color**")
-    cols[3].markdown("**Size**")
-    cols[4].markdown("**Quantity**")
-
-    for i in range(n_items):
-        cols = st.columns([0.5, 2, 2, 2, 2.5])
-        cols[0].markdown(f"**{i+1}**")
-        style = cols[1].text_input("", key=f"style_{i}", placeholder="Style", label_visibility="collapsed")
-        color = cols[2].text_input("", key=f"color_{i}", placeholder="Color", label_visibility="collapsed")
-        size = cols[3].text_input("", key=f"size_{i}", placeholder="Size", label_visibility="collapsed")
-        qty = cols[4].number_input("", key=f"qty_{i}", min_value=0, value=0, step=100, label_visibility="collapsed")
+    for idx, row in edited_df.iterrows():
+        raw_qty = row.get("Quantity", 0)
+        try:
+            qty = int(raw_qty) if not pd.isna(raw_qty) else 0
+        except (ValueError, TypeError):
+            qty = 0
 
         if qty > 0:
-            style_val = style or f"Item {i+1}"
+            style_val = str(row.get("Style", "") or "").strip() or f"Item {idx + 1}"
+            color_val = str(row.get("Color", "") or "").strip() or "N/A"
+            size_val = str(row.get("Size", "") or "").strip() or "N/A"
+
             data.append({
-                "SL": i+1,
+                "SL": idx + 1,
                 "Style": style_val,
-                "Color": color or "N/A",
-                "Size": size or "N/A",
+                "Color": color_val,
+                "Size": size_val,
                 "Quantity": qty
             })
             item_meta[style_val] = {
                 "Style": style_val,
-                "Color": color or "N/A",
-                "Size": size or "N/A"
+                "Color": color_val,
+                "Size": size_val
             }
 
     st.session_state['item_meta'] = item_meta
