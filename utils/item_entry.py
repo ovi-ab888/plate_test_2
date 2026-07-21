@@ -17,6 +17,28 @@ def render_manual_entry(n_items=5):
             [{"Style": "", "Color": "", "Size": "", "Quantity": 0} for _ in range(n_items)]
         )
 
+    # ================================================================
+    # Add / Remove row buttons (easy control)
+    # ================================================================
+    btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 4])
+    with btn_col1:
+        if st.button("➕ Add Row", use_container_width=True):
+            new_row = pd.DataFrame([{"Style": "", "Color": "", "Size": "", "Quantity": 0}])
+            st.session_state['manual_entry_df'] = pd.concat(
+                [st.session_state['manual_entry_df'], new_row], ignore_index=True
+            )
+            st.rerun()
+    with btn_col2:
+        if st.button("🗑️ Remove Last Row", use_container_width=True):
+            if len(st.session_state['manual_entry_df']) > 1:
+                st.session_state['manual_entry_df'] = st.session_state['manual_entry_df'].iloc[:-1].reset_index(drop=True)
+                st.rerun()
+
+    st.caption("💡 Tip: Excel theke copy kore direct e paste korte paro. Cell-e double-click kore edit koro. Row delete korte row-er left-e checkbox select kore Delete key chapo, ba upor-er 🗑️ button use koro.")
+
+    # ================================================================
+    # Excel-style Data Editor Grid
+    # ================================================================
     edited_df = st.data_editor(
         st.session_state['manual_entry_df'],
         num_rows="dynamic",
@@ -24,17 +46,17 @@ def render_manual_entry(n_items=5):
         hide_index=True,
         key="manual_entry_editor",
         column_config={
-            "Style": st.column_config.TextColumn("Style", width="medium"),
-            "Color": st.column_config.TextColumn("Color", width="medium"),
-            "Size": st.column_config.TextColumn("Size", width="medium"),
-            "Quantity": st.column_config.NumberColumn("Quantity", min_value=0, step=1, width="small"),
+            "Style": st.column_config.TextColumn("Style", width="medium", required=False),
+            "Color": st.column_config.TextColumn("Color", width="medium", required=False),
+            "Size": st.column_config.TextColumn("Size", width="medium", required=False),
+            "Quantity": st.column_config.NumberColumn("Quantity", min_value=0, step=1, width="small", required=False),
         },
     )
 
     st.session_state['manual_entry_df'] = edited_df
 
     # ================================================================
-    # Grid theke data + item_meta build kora (Excel upload er moto same system)
+    # Grid theke data + item_meta build kora
     # ================================================================
     data = []
     item_meta = {}
