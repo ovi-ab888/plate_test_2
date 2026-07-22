@@ -334,5 +334,3 @@
         .footer-text { color: rgba(0,0,0,0.6) !important; }
         .footer-border { border-top: 2px solid rgba(102,126,234,0.3) !important; background: rgba(255,255,255,0.5) !important; }
     }
-</style>
-""", unsafe_allow_html=True)
