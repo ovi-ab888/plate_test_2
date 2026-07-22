@@ -17,9 +17,6 @@ def render_manual_entry(n_items=5):
             [{"Style": "", "Color": "", "Size": "", "Quantity": 0} for _ in range(n_items)]
         )
 
-    # ================================================================
-    # Add / Remove row buttons (easy control)
-    # ================================================================
     btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 4])
     with btn_col1:
         if st.button("➕ Add Row", use_container_width=True):
@@ -27,17 +24,23 @@ def render_manual_entry(n_items=5):
             st.session_state['manual_entry_df'] = pd.concat(
                 [st.session_state['manual_entry_df'], new_row], ignore_index=True
             )
+            if 'manual_entry_editor' in st.session_state:
+                del st.session_state['manual_entry_editor']
             st.rerun()
     with btn_col2:
         if st.button("🗑️ Remove Last Row", use_container_width=True):
             if len(st.session_state['manual_entry_df']) > 1:
                 st.session_state['manual_entry_df'] = st.session_state['manual_entry_df'].iloc[:-1].reset_index(drop=True)
+                if 'manual_entry_editor' in st.session_state:
+                    del st.session_state['manual_entry_editor']
                 st.rerun()
 
-    st.caption("💡 Tip: Excel theke copy kore direct e paste korte paro. Cell-e double-click kore edit koro. Row delete korte row-er left-e checkbox select kore Delete key chapo, ba upor-er 🗑️ button use koro.")
+    st.caption("💡 Tip: Excel theke copy kore direct e paste korte paro. Cell-er niche-dan konay handle dhore drag korle value fill hoy.")
 
     # ================================================================
     # Excel-style Data Editor Grid
+    # (NOTE: edited_df ke abar session_state['manual_entry_df']-e
+    # overwrite kora hocche na - eituku e drag-fill bug fix kore)
     # ================================================================
     edited_df = st.data_editor(
         st.session_state['manual_entry_df'],
@@ -52,8 +55,6 @@ def render_manual_entry(n_items=5):
             "Quantity": st.column_config.NumberColumn("Quantity", min_value=0, step=1, width="small", required=False),
         },
     )
-
-    st.session_state['manual_entry_df'] = edited_df
 
     # ================================================================
     # Grid theke data + item_meta build kora
@@ -91,7 +92,6 @@ def render_manual_entry(n_items=5):
     st.session_state['item_meta_columns'] = meta_columns
 
     return data
-
 
 def render_excel_upload(addon_percent):
     """
