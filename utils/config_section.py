@@ -27,7 +27,7 @@ def render_config():
         job_number = st.text_input(
             "🔢 Job Number",
             value="",
-            placeholder="e.g.,OFF00000/2026",
+            placeholder="OFF00123456/2026",
             help="Enter a job number for tracking"
         )
         # Fila na thakle default auto-generate hobe
