@@ -30,8 +30,8 @@ def render_config():
             placeholder="e.g., JOB-001",
             help="Enter a job number for tracking"
         )
-        # If empty, generate default
-       if not job_number:
+        # Fila na thakle default auto-generate hobe
+        if not job_number:
             job_number = f"JOB-{datetime.now().strftime('%Y%m%d_%H%M')}"
 
     return n_items, capacity, max_plates, addon_percent, job_number
