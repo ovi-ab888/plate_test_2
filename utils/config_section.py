@@ -26,8 +26,12 @@ def render_config():
     with col5:
         job_number = st.text_input(
             "🔢 Job Number",
-            value=f"JOB-{datetime.now().strftime('%d-%m-%Y_%H:%M')}",
+            value="",
+            placeholder="e.g., JOB-001",
             help="Enter a job number for tracking"
         )
+        # If empty, generate default
+       if not job_number:
+            job_number = f"JOB-{datetime.now().strftime('%Y%m%d_%H%M')}"
 
     return n_items, capacity, max_plates, addon_percent, job_number
