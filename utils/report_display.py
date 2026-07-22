@@ -82,7 +82,7 @@ def render_downloads(best_plates, demand, original_qty, best_algo, best_waste, j
             st.download_button(
                 "📊 Download Excel Report",
                 excel_buffer,
-                f"Plate_Ratio_Report_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.xlsx",
+                f"Job Number_{job_number}_Plate Ratio.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 use_container_width=True
             )
@@ -98,7 +98,7 @@ def render_downloads(best_plates, demand, original_qty, best_algo, best_waste, j
             st.download_button(
                 "📄 Download PDF Report",
                 pdf_buffer,
-                f"Plate_Ratio_Report_{job_number}_{datetime.now().strftime('%d-%m-%Y_%H-%M')}.pdf",
+                f"Job Number_{job_number}_Plate Ratio.pdf",
                 mime="application/pdf",
                 use_container_width=True
             )
