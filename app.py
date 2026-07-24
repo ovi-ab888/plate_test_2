@@ -83,7 +83,7 @@ data = []
 original_qty = {}
 demand = {}
 
-if input_method == "✏️ Manual Entry":
+if input_method == "Manual Entry":
     data = render_manual_entry(n_items)
 else:
     original_qty, demand = render_excel_upload(addon_percent)
@@ -94,7 +94,7 @@ else:
 # ================================================================
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    generate_clicked = st.button("🚀 Generate Plans", type="primary", use_container_width=True)
+    generate_clicked = st.button("Generate Plans", type="primary", use_container_width=True)
 
 # ================================================================
 # RESULTS SECTION
