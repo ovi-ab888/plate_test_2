@@ -37,7 +37,7 @@ def render_manual_entry(n_items=5):
         if 'manual_entry_editor' in st.session_state:
             del st.session_state['manual_entry_editor']
 
-    st.caption("Tip: Excel theke copy kore direct e paste korte paro. Cell-er niche-dan konay handle dhore drag korle value fill hoy. Row add/remove korte 'Number of Items' change koro.")
+
 
     # ================================================================
     # Excel-style Data Editor Grid
