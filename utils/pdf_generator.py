@@ -1,6 +1,6 @@
 # utils/pdf_generator.py
 """
-PDF Report Generator - Dynamic Column Support, Professional Layout
+PDF Report Generator - Dynamic Column Support, Auto Orientation
 """
 try:
     import reportlab
@@ -13,7 +13,7 @@ from datetime import datetime
 
 try:
     from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib.pagesizes import A4, landscape, portrait
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.enums import TA_CENTER
@@ -24,7 +24,7 @@ except ImportError as e:
 
 
 def _footer(canvas, doc):
-    """Footer with brand text (left/center) + page number (right) - shown on every page"""
+    """Footer with brand text (center) + page number (right) - shown on every page"""
     canvas.saveState()
     canvas.setFont('Helvetica', 8)
     canvas.setFillColor(colors.grey)
@@ -45,13 +45,10 @@ def _calc_col_widths(header_row, data_rows, available_width, min_width=28):
             if cell_len > max_len[i]:
                 max_len[i] = cell_len
 
-    # Prottekta column-er minimum weight thakbe jate khub choto na hoy
     weights = [max(l, 4) for l in max_len]
     total_weight = sum(weights)
-
     col_widths = [max((w / total_weight) * available_width, min_width) for w in weights]
 
-    # Total width available_width chaira gele proportionally kompress kora
     total_width = sum(col_widths)
     if total_width > available_width:
         scale = available_width / total_width
@@ -70,13 +67,31 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
     meta_columns = meta_columns or []
 
     try:
-        buffer = BytesIO()
-        page_width, page_height = landscape(A4)
+        # ================================================================
+        # STEP 1: Header row age build kora (orientation decide korar jonno)
+        # "With Add-on" column bad, notun order: SL, meta cols, Original,
+        # Plate columns, Total Prod., Excess, Excess %
+        # ================================================================
+        header_row = ["SL"] + meta_columns + ["Original"]
+        for p in plates:
+            header_row.append(f"Plate {p['name']}")
+        header_row.extend(["Total Prod.", "Excess", "Excess %"])
+
+        # ================================================================
+        # STEP 2: Auto orientation - column beshi hole landscape, kom hole portrait
+        # ================================================================
+        if len(header_row) > 11:
+            page_size = landscape(A4)
+        else:
+            page_size = portrait(A4)
+
+        page_width, page_height = page_size
         left_margin = right_margin = 20
         top_margin = bottom_margin = 30
 
+        buffer = BytesIO()
         doc = SimpleDocTemplate(
-            buffer, pagesize=landscape(A4),
+            buffer, pagesize=page_size,
             rightMargin=right_margin, leftMargin=left_margin,
             topMargin=top_margin, bottomMargin=bottom_margin
         )
@@ -101,17 +116,12 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
         story.append(Spacer(1, 10))
 
         # ============= MAIN SUMMARY TABLE (Dynamic columns) =============
-        header_row = ["SL"] + meta_columns + ["Original", "With Add-on"]
-        for p in plates:
-            header_row.append(f"Plate {p['name']}")
-        header_row.extend(["Total Prod.", "Excess", "Excess %"])
-
         data_rows = []
         sl = 1
         for tag in demand.keys():
             meta = item_meta.get(tag, {})
             row = [str(sl)] + [meta.get(col, "") for col in meta_columns]
-            row += [str(original_qty.get(tag, 0)), str(demand[tag])]
+            row += [f"{original_qty.get(tag, 0):,}"]
 
             total_produced = 0
             for p in plates:
@@ -121,28 +131,28 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
 
             excess = total_produced - demand[tag]
             excess_percent = f"{round((excess / demand[tag]) * 100, 2) if demand[tag] else 0}%"
-            row.extend([str(total_produced), str(excess), excess_percent])
+            row.extend([f"{total_produced:,}", f"{excess:,}", excess_percent])
 
             data_rows.append(row)
             sl += 1
 
         # Total row
         total_row = ["TOTAL"] + ["" for _ in meta_columns]
-        total_row += [str(sum(original_qty.values())), str(sum(demand.values()))]
+        total_row += [f"{sum(original_qty.values()):,}"]
 
         total_produced_sum = 0
         for p in plates:
             plate_total = 0
             for tag in demand:
                 plate_total += p["layout"].get(tag, 0) * p["sheets"]
-            total_row.append(str(plate_total))
+            total_row.append(f"{plate_total:,}")
             total_produced_sum += plate_total
 
         total_excess_sum = total_produced_sum - sum(demand.values())
         total_excess_percent = (
             f"{round((total_excess_sum / total_produced_sum) * 100, 2) if total_produced_sum > 0 else 0}%"
         )
-        total_row.extend([str(total_produced_sum), str(total_excess_sum), total_excess_percent])
+        total_row.extend([f"{total_produced_sum:,}", f"{total_excess_sum:,}", total_excess_percent])
         data_rows.append(total_row)
 
         summary_data = [header_row] + data_rows
@@ -186,15 +196,23 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
         story.append(main_table)
         story.append(Spacer(1, 15))
 
-        # ============= PLATE DETAILS TABLE =============
+        # ============= PLATE DETAILS TABLE (with TOTAL row) =============
         story.append(Paragraph("Plate Configuration Details",
                      ParagraphStyle('SubHeader', parent=styles['Heading2'], fontSize=11,
                                     alignment=TA_CENTER, textColor=colors.HexColor('#667eea'))))
         story.append(Spacer(1, 8))
 
         plate_data = [["SL", "Plate ID", "Sheets", "Total UPS"]]
+        total_sheets_sum = 0
+        total_ups_sum = 0
         for idx, p in enumerate(plates, 1):
-            plate_data.append([str(idx), p["name"], str(p["sheets"]), str(sum(p["layout"].values()))])
+            sheets = p["sheets"]
+            ups = sum(p["layout"].values())
+            plate_data.append([str(idx), p["name"], f"{sheets:,}", f"{ups:,}"])
+            total_sheets_sum += sheets
+            total_ups_sum += ups
+
+        plate_data.append(["", "TOTAL", f"{total_sheets_sum:,}", f"{total_ups_sum:,}"])
 
         plate_table = Table(plate_data)
         plate_table.setStyle(TableStyle([
@@ -203,8 +221,11 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 8),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -2), 7),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f0f0')),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, -1), (-1, -1), 7),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]))
