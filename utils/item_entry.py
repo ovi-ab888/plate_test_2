@@ -19,7 +19,7 @@ def render_manual_entry(n_items=5):
 
     btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 4])
     with btn_col1:
-        if st.button("➕ Add Row", use_container_width=True):
+        if st.button("Add Row", use_container_width=True):
             new_row = pd.DataFrame([{"Style": "", "Color": "", "Size": "", "Quantity": 0}])
             st.session_state['manual_entry_df'] = pd.concat(
                 [st.session_state['manual_entry_df'], new_row], ignore_index=True
@@ -28,14 +28,13 @@ def render_manual_entry(n_items=5):
                 del st.session_state['manual_entry_editor']
             st.rerun()
     with btn_col2:
-        if st.button("🗑️ Remove Last Row", use_container_width=True):
+        if st.button("Remove Last Row", use_container_width=True):
             if len(st.session_state['manual_entry_df']) > 1:
                 st.session_state['manual_entry_df'] = st.session_state['manual_entry_df'].iloc[:-1].reset_index(drop=True)
                 if 'manual_entry_editor' in st.session_state:
                     del st.session_state['manual_entry_editor']
                 st.rerun()
 
-    st.caption("💡 Tip: Excel theke copy kore direct e paste korte paro. Cell-er niche-dan konay handle dhore drag korle value fill hoy.")
 
     # ================================================================
     # Excel-style Data Editor Grid
