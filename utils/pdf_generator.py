@@ -80,7 +80,7 @@ def generate_pdf_report(plates, demand, original_qty, algo_name, waste_percent,
         # ================================================================
         # STEP 2: Auto orientation - column beshi hole landscape, kom hole portrait
         # ================================================================
-        if len(header_row) > 11:
+        if len(header_row) > 13:
             page_size = landscape(A4)
         else:
             page_size = portrait(A4)
