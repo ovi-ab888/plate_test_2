@@ -220,7 +220,7 @@ def render_excel_upload(addon_percent):
             original_qty[t] = int(q)
             demand[t] = math.ceil(int(q) * (1 + addon_percent / 100))
 
-        st.markdown('</div>', unsafe_allow_html=True)
+
         return original_qty, demand
 
     except Exception as e:
