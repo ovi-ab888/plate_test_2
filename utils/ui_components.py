@@ -12,7 +12,6 @@ def render_header(title="📊 Plate Ratio Intelligence System",
         <h1>{title}</h1>
         <p>{subtitle}</p>
         <p style="font-size: 0.85rem; opacity: 0.8;">AI-Powered • Fast • Accurate</p>
-        <p style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">✨ Design by Ovi ✨</p>
     </div>
     """, unsafe_allow_html=True)
 
