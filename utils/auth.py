@@ -118,7 +118,6 @@ def check_password():
         <h1>📊 Plate Ratio System</h1>
         <p>Intelligent Production Planning & Ratio Optimization</p>
         <p style="font-size: 0.85rem; opacity: 0.8;">AI-Powered • Fast • Accurate</p>
-        <p class="designer-name">✨ Design by Ovi ✨</p>
     </div>
     """, unsafe_allow_html=True)
 
