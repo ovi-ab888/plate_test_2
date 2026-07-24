@@ -10,7 +10,7 @@ QTY_KEYWORDS = ['quantity', 'qty', 'qty.', 'quantities', 'total', 'pcs', 'pieces
 
 
 def render_manual_entry(n_items=5):
-    """Renders an Excel-style editable grid for manual item entry (dynamic rows)"""
+    """Renders an Excel-style editable grid for manual item entry"""
 
     if 'manual_entry_df' not in st.session_state:
         st.session_state['manual_entry_df'] = pd.DataFrame(
@@ -37,30 +37,7 @@ def render_manual_entry(n_items=5):
         if 'manual_entry_editor' in st.session_state:
             del st.session_state['manual_entry_editor']
 
-    # ================================================================
-    # Add / Remove row buttons (manual control)
-    # ================================================================
-    btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 4])
-    with btn_col1:
-        if st.button("➕ Add Row", use_container_width=True):
-            new_row = pd.DataFrame([{"Style": "", "Color": "", "Size": "", "Quantity": 0}])
-            st.session_state['manual_entry_df'] = pd.concat(
-                [st.session_state['manual_entry_df'], new_row], ignore_index=True
-            )
-            st.session_state['manual_entry_last_n'] = len(st.session_state['manual_entry_df'])
-            if 'manual_entry_editor' in st.session_state:
-                del st.session_state['manual_entry_editor']
-            st.rerun()
-    with btn_col2:
-        if st.button("🗑️ Remove Last Row", use_container_width=True):
-            if len(st.session_state['manual_entry_df']) > 1:
-                st.session_state['manual_entry_df'] = st.session_state['manual_entry_df'].iloc[:-1].reset_index(drop=True)
-                st.session_state['manual_entry_last_n'] = len(st.session_state['manual_entry_df'])
-                if 'manual_entry_editor' in st.session_state:
-                    del st.session_state['manual_entry_editor']
-                st.rerun()
-
-    st.caption("Tip: Excel theke copy kore direct e paste korte paro. Cell-er niche-dan konay handle dhore drag korle value fill hoy.")
+    st.caption("Tip: Excel theke copy kore direct e paste korte paro. Cell-er niche-dan konay handle dhore drag korle value fill hoy. Row add/remove korte 'Number of Items' change koro.")
 
     # ================================================================
     # Excel-style Data Editor Grid
@@ -115,6 +92,8 @@ def render_manual_entry(n_items=5):
     st.session_state['item_meta_columns'] = meta_columns
 
     return data
+
+
 def render_excel_upload(addon_percent):
     """
     Renders Excel upload UI, auto-detects the Quantity column,
