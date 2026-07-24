@@ -16,16 +16,16 @@ def render_config():
     col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
-        n_items = st.number_input("📦 Number of Items", min_value=1, max_value=500, value=3)
+        n_items = st.number_input("Number of Items", min_value=1, max_value=500, value=3)
     with col2:
-        capacity = st.number_input("📀 Plate Capacity (UPS)", min_value=1, max_value=200, value=10)
+        capacity = st.number_input("Plate Capacity (UPS)", min_value=1, max_value=200, value=10)
     with col3:
-        max_plates = st.number_input("🎨 Max Plates", min_value=1, max_value=50, value=3)
+        max_plates = st.number_input("Max Plates", min_value=1, max_value=50, value=3)
     with col4:
-        addon_percent = st.number_input("📈 Add-on (%)", min_value=0.0, max_value=50.0, value=0.0, step=0.5)
+        addon_percent = st.number_input("Add-on (%)", min_value=0.0, max_value=50.0, value=0.0, step=0.5)
     with col5:
         job_number = st.text_input(
-            "🔢 Job Number",
+            "Job Number",
             value="",
             placeholder="OFF00123456/2026",
             help="Enter a job number for tracking"
