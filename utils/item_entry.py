@@ -100,7 +100,6 @@ def render_excel_upload(addon_percent):
     treats ALL other columns as dynamic metadata (original name + order preserved).
     Returns (original_qty, demand) dicts, or calls st.stop() if not ready.
     """
-    st.markdown('<div class="card"><div class="card-title" style="text-align: center; display: block; width: 100%;">📂 Upload Excel File</div>', unsafe_allow_html=True)
 
     uploaded_file = st.file_uploader(
         "Upload Excel file with Item Details",
