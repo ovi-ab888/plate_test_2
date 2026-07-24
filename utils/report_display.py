@@ -14,18 +14,18 @@ def render_report(results, comparison_df, best_algo, best_waste, best_plates, de
     """Renders best-algorithm banner, comparison table, summary table, and plate details."""
     st.markdown(f"""
     <div class="best-algo">
-        <h2>🏆 BEST ALGORITHM: {best_algo}</h2>
+        <h2>BEST ALGORITHM: {best_algo}</h2>
         <p style="font-size: 1.5rem; margin: 0.5rem 0;">Waste: {best_waste}%</p>
         <p style="margin: 0;">Total Algorithms Tested: {len(results)}</p>
         <p style="margin: 0; font-size: 0.85rem; opacity: 0.8;">Job Number: {job_number}</p>
     </div>
     """, unsafe_allow_html=True)
 
-    with st.expander("📊 All Algorithms Comparison", expanded=False):
+    with st.expander("All Algorithms Comparison", expanded=False):
         st.dataframe(comparison_df, use_container_width=True)
 
     st.markdown("---")
-    st.markdown("## 📋 Best Algorithm Report")
+    st.markdown("##Best Algorithm Report")
 
     item_meta = st.session_state.get('item_meta', {})
     meta_columns = st.session_state.get('item_meta_columns', [])
@@ -35,7 +35,7 @@ def render_report(results, comparison_df, best_algo, best_waste, best_plates, de
     if not summary_df.empty:
         st.dataframe(summary_df, use_container_width=True, height=350)
 
-        st.markdown("### 🧾 Plate Details")
+        st.markdown("###Plate Details")
         plate_rows = []
         total_sheets_sum = 0
         total_ups_sum = 0
